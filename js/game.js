@@ -42,6 +42,11 @@ let transitionText;
 let transitionIcon;
 let currentScene;
 
+// Turret movement constants
+const TURRET_MOVE_SPEED = 3;
+const TURRET_MIN_Y = 300;
+const TURRET_MAX_Y = 500;
+
 // Age Statistics
 const AGES = {
     child: {
@@ -391,6 +396,18 @@ let onTurret = false;
 let bossDir = 1;
 let bossShootTimer = 0;
 
+/**
+ * Move turret and player together vertically
+ * @param {number} deltaY - Amount to move (positive = down, negative = up)
+ */
+function moveTurretWithPlayer(deltaY) {
+    const newY = turret.y + deltaY;
+    // Clamp to bounds and update both turret and player atomically
+    const clampedY = Math.max(TURRET_MIN_Y, Math.min(TURRET_MAX_Y, newY));
+    turret.y = clampedY;
+    player.y = clampedY;
+}
+
 function updateBossLevel() {
     if (isGameOver) return;
     // Guard against boss being undefined or destroyed
@@ -464,21 +481,9 @@ function updateBossLevel() {
     if (onTurret) {
         // Turret vertical movement with arrow keys
         if (cursors.up.isDown) {
-            turret.y -= 3;
-            player.y -= 3;
-            // Keep turret within bounds (300-500 to match boss range and floor)
-            if (turret.y < 300) {
-                turret.y = 300;
-                player.y = 300;
-            }
+            moveTurretWithPlayer(-TURRET_MOVE_SPEED);
         } else if (cursors.down.isDown) {
-            turret.y += 3;
-            player.y += 3;
-            // Keep turret within bounds
-            if (turret.y > 500) {
-                turret.y = 500;
-                player.y = 500;
-            }
+            moveTurretWithPlayer(TURRET_MOVE_SPEED);
         }
         
         // Shooting logic
