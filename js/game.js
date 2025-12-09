@@ -493,6 +493,10 @@ function updateBossLevel() {
     cleanupOffScreenBullets(bossBullets);
 }
 
+/**
+ * Clean up bullets that have moved off-screen to prevent memory leaks
+ * @param {Phaser.Physics.Arcade.Group} bulletGroup - The bullet group to clean up
+ */
 function cleanupOffScreenBullets(bulletGroup) {
     const margin = 50;
     const maxX = config.width + margin;
@@ -500,7 +504,8 @@ function cleanupOffScreenBullets(bulletGroup) {
     const maxY = config.height + margin;
     const minY = -margin;
     
-    bulletGroup.children.entries.forEach(bullet => {
+    // Use slice() to avoid modifying array while iterating
+    bulletGroup.children.entries.slice().forEach(bullet => {
         if (bullet.x > maxX || bullet.x < minX || bullet.y > maxY || bullet.y < minY) {
             bullet.destroy();
         }
