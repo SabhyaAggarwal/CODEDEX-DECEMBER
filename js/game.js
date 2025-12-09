@@ -600,6 +600,8 @@ function updateBossLevel() {
         player.x = turret.x;
         player.y = turret.y;
         player.body.setVelocity(0, 0); // Zero out velocity to prevent gravity effect
+        // Ensure physics body updates are applied
+        player.body.updateFromGameObject();
         
         // Turret vertical movement with arrow keys
         if (cursors.up.isDown) {
