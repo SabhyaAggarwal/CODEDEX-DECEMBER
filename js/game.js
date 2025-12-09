@@ -150,8 +150,12 @@ function createLevel(scene, level) {
     // Static obstacles group
     obstacles = scene.physics.add.staticGroup();
     ghostPlatforms = scene.physics.add.staticGroup();
-    bullets = scene.physics.add.group();
-    bossBullets = scene.physics.add.group();
+    bullets = scene.physics.add.group({
+        allowGravity: false
+    });
+    bossBullets = scene.physics.add.group({
+        allowGravity: false
+    });
 
     console.log('Building Level ' + level);
 
