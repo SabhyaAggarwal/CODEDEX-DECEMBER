@@ -445,16 +445,13 @@ function updateBossLevel() {
         if (onTurret) {
             // Exit logic
             onTurret = false;
-            player.setVisible(true);
-            player.body.enable = true;
             player.x = turret.x;
             player.y = turret.y - 50;
             switchAge('adult');
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
-            player.setVisible(false);
-            player.body.enable = false;
+            // Player remains visible and vulnerable while on turret
             infoText.setText('Mode: TURRET (Press X to exit, Space to shoot)');
         }
     }
@@ -532,9 +529,7 @@ function damageBoss(boss, bullet) {
 
 function damagePlayer(player, bullet) {
     bullet.destroy();
-    if (!onTurret) {
-        failLevel();
-    }
+    failLevel();
 }
 function switchAge(newAge) {
     if (currentAge === newAge) return;
