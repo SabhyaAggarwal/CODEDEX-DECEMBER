@@ -451,13 +451,36 @@ function updateBossLevel() {
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
+            // Position player at turret location
+            player.x = turret.x;
+            player.y = turret.y;
             // Player remains visible and vulnerable while on turret to increase difficulty
             // Must quickly enter/exit to avoid boss bullets while shooting
-            infoText.setText('Mode: TURRET (Press X to exit, Space to shoot)');
+            // Use arrow keys to move turret up/down, player moves with it
+            infoText.setText('Mode: TURRET (Arrows: Move, Space: Shoot, X: Exit)');
         }
     }
 
     if (onTurret) {
+        // Turret vertical movement with arrow keys
+        if (cursors.up.isDown) {
+            turret.y -= 3;
+            player.y -= 3;
+            // Keep turret within bounds (300-500 to match boss range and floor)
+            if (turret.y < 300) {
+                turret.y = 300;
+                player.y = 300;
+            }
+        } else if (cursors.down.isDown) {
+            turret.y += 3;
+            player.y += 3;
+            // Keep turret within bounds
+            if (turret.y > 500) {
+                turret.y = 500;
+                player.y = 500;
+            }
+        }
+        
         // Shooting logic
         if (cursors.space.isDown) {
             if (currentScene.time.now % 200 < 20) { // Rapid fire limit
@@ -474,10 +497,9 @@ function updateBossLevel() {
                 }
                 bullets.add(bullet);
 
-                // Aim at boss
-                let angle = Phaser.Math.Angle.Between(turret.x, turret.y, boss.x, boss.y);
-                currentScene.physics.velocityFromRotation(angle, 600, bullet.body.velocity);
-                bullet.rotation = angle; // Visual Rotation
+                // Shoot straight to the right (no tracking)
+                bullet.body.setVelocity(600, 0);
+                bullet.rotation = 0; // Visual Rotation pointing right
             }
         }
     }
