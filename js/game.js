@@ -400,7 +400,9 @@ let bossShootTimer = 0;
 
 /**
  * Move turret and player together vertically
- * @param {number} deltaY - Amount to move (positive = down, negative = up)
+ * @param {number} deltaY - Amount to move in pixels (positive = down, negative = up). 
+ *                          Final position will be clamped to TURRET_MIN_Y and TURRET_MAX_Y.
+ *                          If turret or player objects don't exist, function returns without action.
  */
 function moveTurretWithPlayer(deltaY) {
     // Safety check for object existence
@@ -473,9 +475,9 @@ function updateBossLevel() {
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
-            // Position player at turret location
+            // Position player at turret location (x and initial y)
             player.x = turret.x;
-            player.y = turret.y;
+            moveTurretWithPlayer(0); // Sync positions using helper function
             // Player remains visible and vulnerable while on turret to increase difficulty
             // Must quickly enter/exit to avoid boss bullets while shooting
             // Use arrow keys to move turret up/down, player moves with it
