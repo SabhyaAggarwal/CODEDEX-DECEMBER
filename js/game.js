@@ -32,7 +32,9 @@ let currentLevel = 1;
 let obstacles;
 let finishZone;
 let boss;
-let bossHealth = 3;
+let bossHealth = 10;
+let bossMaxHealth = 10;
+let bossHealthBar;
 let turret;
 let bullets;
 let bossBullets;
@@ -45,7 +47,7 @@ let currentScene;
 // Turret movement constants
 const TURRET_MOVE_SPEED = 3;
 const TURRET_MIN_Y = 300;
-const TURRET_MAX_Y = 500;
+const TURRET_MAX_Y = 400; // Match boss range so no safe spots
 
 // Level design constants
 const CHILD_TUNNEL_GAP = 22; // Child is 20px tall, needs small gap
@@ -100,12 +102,12 @@ function create() {
     // Only reset if Level 1. Otherwise preserve value from previous level.
     if (currentLevel === 1) {
         timeLeft = 0;
-        bossHealth = 3; // Reset boss health for new game
+        bossHealth = bossMaxHealth; // Reset boss health for new game
     }
 
     // Safety reset if we just entered level 5? No, create runs every level.
     if (currentLevel === 5) {
-        bossHealth = 3;
+        bossHealth = bossMaxHealth;
     }
 
     // 1. Create Level
@@ -192,28 +194,25 @@ function buildLevel1(scene) {
     obstacles.add(wall1);
 
     // Section 1: High ledge (ADULT ONLY - requires high jump -600)
-    // Floor at y=560, ledge top at y=360, gap=200px (only adult can reach)
-    let ledge1 = scene.add.rectangle(150, 470, 100, 240, 0x555555);
+    // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
+    let ledge1 = scene.add.rectangle(150, 480, 100, 220, 0x555555);
     scene.physics.add.existing(ledge1, true);
     obstacles.add(ledge1);
 
     // Ceiling above ledge to prevent child from bouncing over
-    let ceiling1 = scene.add.rectangle(150, 300, 100, 80, 0x555555);
+    let ceiling1 = scene.add.rectangle(150, 320, 100, 100, 0x555555);
     scene.physics.add.existing(ceiling1, true);
     obstacles.add(ceiling1);
 
-    // Section 2: Tight tunnel (CHILD ONLY - 22px gap, child is 20px)
-    // Floor at 375, height 20 -> top at 365
-    // Ceiling at 343, height 20 -> bottom at 353
-    // Gap = 365 - 353 = 12px... wait that's wrong
-    // Let me recalculate: Gap should be 22px
-    // If floor top is at 365, ceiling bottom should be at 365-22=343
-    // So ceiling center should be at 343-10=333
-    let tunnelFloor = scene.add.rectangle(350, 375, 200, 20, 0x555555);
+    // Section 2: Tight tunnel (CHILD ONLY - 25px gap, child is 20px)
+    // Tunnel at comfortable height for child to reach from ledge
+    // Floor at 390, height 20 -> top at 380
+    // Ceiling should have bottom at 380-25=355, so center at 355-10=345
+    let tunnelFloor = scene.add.rectangle(350, 390, 200, 20, 0x555555);
     scene.physics.add.existing(tunnelFloor, true);
     obstacles.add(tunnelFloor);
 
-    let tunnelCeiling = scene.add.rectangle(350, 333, 200, 20, 0x555555);
+    let tunnelCeiling = scene.add.rectangle(350, 345, 200, 20, 0x555555);
     scene.physics.add.existing(tunnelCeiling, true);
     obstacles.add(tunnelCeiling);
 
@@ -459,6 +458,13 @@ function buildBossLevel(scene) {
     scene.physics.add.collider(player, boss, hitBossBody, null, scene);
 
     scene.add.text(400, 100, 'BOSS FIGHT!', { fontSize: '32px', fill: '#f00' }).setOrigin(0.5);
+    
+    // Boss health bar
+    scene.add.text(400, 30, 'BOSS HEALTH:', { fontSize: '20px', fill: '#fff' }).setOrigin(0.5);
+    // Background bar
+    scene.add.rectangle(400, 55, 304, 24, 0x000000).setOrigin(0.5);
+    // Health bar (will be updated in updateBossLevel)
+    bossHealthBar = scene.add.rectangle(400, 55, 300, 20, 0xff0000).setOrigin(0.5);
 }
 
 function update() {
@@ -529,6 +535,20 @@ function updateBossLevel() {
     if (isGameOver) return;
     // Guard against boss being undefined or destroyed
     if (!boss || !boss.active) return;
+
+    // Update boss health bar
+    if (bossHealthBar && bossHealthBar.active) {
+        const healthPercent = bossHealth / bossMaxHealth;
+        bossHealthBar.width = 300 * healthPercent;
+        // Update color based on health
+        if (healthPercent > 0.6) {
+            bossHealthBar.fillColor = 0x00ff00; // Green
+        } else if (healthPercent > 0.3) {
+            bossHealthBar.fillColor = 0xffff00; // Yellow
+        } else {
+            bossHealthBar.fillColor = 0xff0000; // Red
+        }
+    }
 
     // 1. Boss AI
     // Move up and down? Or side to side?
@@ -688,8 +708,24 @@ function switchAge(newAge) {
     if (currentAge === newAge) return;
 
     const oldHeight = AGES[currentAge].height;
+    const oldWidth = AGES[currentAge].width;
     currentAge = newAge;
     const stats = AGES[currentAge];
+
+    // Check if there's enough space to grow
+    if (stats.height > oldHeight || stats.width > oldWidth) {
+        // Try to find a safe position by moving upward
+        const heightDiff = stats.height - oldHeight;
+        const widthDiff = stats.width - oldWidth;
+        
+        // Move up by the height difference plus some margin
+        player.y -= heightDiff / 2 + 5;
+        
+        // If width changed, try to center the player
+        if (widthDiff > 0) {
+            // No horizontal adjustment needed, just update body
+        }
+    }
 
     // 2. Update Visuals & Physics
     player.fillColor = stats.color;
@@ -702,14 +738,8 @@ function switchAge(newAge) {
     // So we must call player.body.setSize()
     player.setSize(stats.width, stats.height);
 
-    // 3. Position Fix (Prevent Stuckness)
-    // If growing, move up to avoid clipping floor.
-    if (stats.height > oldHeight) {
-        player.y -= (stats.height - oldHeight) / 2 + 2;
-    }
-
-    // CRITICAL FIX: Give a small upward nudge (hop) to ensure we unstick from any surface
-    player.body.setVelocityY(-200);
+    // 3. Give a small upward velocity to help escape from tight spaces
+    player.body.setVelocityY(-250);
 
     infoText.setText('Age: ' + stats.name);
 }
