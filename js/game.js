@@ -47,6 +47,10 @@ const TURRET_MOVE_SPEED = 3;
 const TURRET_MIN_Y = 300;
 const TURRET_MAX_Y = 500;
 
+// Level design constants
+const CHILD_TUNNEL_GAP = 22; // Child is 20px tall, needs small gap
+const ADULT_TUNNEL_GAP = 40;  // Adult is 48px tall, needs larger gap
+
 // Age Statistics
 const AGES = {
     child: {
@@ -198,12 +202,18 @@ function buildLevel1(scene) {
     scene.physics.add.existing(ceiling1, true);
     obstacles.add(ceiling1);
 
-    // Section 2: Tight tunnel (CHILD ONLY - height 25px, child is 20px)
+    // Section 2: Tight tunnel (CHILD ONLY - 22px gap, child is 20px)
+    // Floor at 375, height 20 -> top at 365
+    // Ceiling at 343, height 20 -> bottom at 353
+    // Gap = 365 - 353 = 12px... wait that's wrong
+    // Let me recalculate: Gap should be 22px
+    // If floor top is at 365, ceiling bottom should be at 365-22=343
+    // So ceiling center should be at 343-10=333
     let tunnelFloor = scene.add.rectangle(350, 375, 200, 20, 0x555555);
     scene.physics.add.existing(tunnelFloor, true);
     obstacles.add(tunnelFloor);
 
-    let tunnelCeiling = scene.add.rectangle(350, 335, 200, 20, 0x555555);
+    let tunnelCeiling = scene.add.rectangle(350, 333, 200, 20, 0x555555);
     scene.physics.add.existing(tunnelCeiling, true);
     obstacles.add(tunnelCeiling);
 
@@ -255,12 +265,14 @@ function buildLevel2(scene) {
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Stage 2: Child-only tunnel to reach next area
+    // Stage 2: Child-only tunnel to reach next area (22px gap)
+    // Floor at 465, height 20 -> top at 455
+    // Ceiling should have bottom at 455-22=433, so center at 433-10=423
     let tunnelFloor1 = scene.add.rectangle(280, 465, 120, 20, 0x555555);
     scene.physics.add.existing(tunnelFloor1, true);
     obstacles.add(tunnelFloor1);
 
-    let tunnelCeil1 = scene.add.rectangle(280, 425, 120, 20, 0x555555);
+    let tunnelCeil1 = scene.add.rectangle(280, 423, 120, 20, 0x555555);
     scene.physics.add.existing(tunnelCeil1, true);
     obstacles.add(tunnelCeil1);
 
@@ -381,12 +393,14 @@ function buildLevel4(scene) {
     scene.physics.add.existing(midPlat, true);
     obstacles.add(midPlat);
 
-    // Child-only tunnel shortcut bypass
+    // Child-only tunnel shortcut bypass (22px gap)
+    // Floor at 485, height 20 -> top at 475
+    // Ceiling should have bottom at 475-22=453, so center at 453-10=443
     let tunnelF = scene.add.rectangle(380, 485, 60, 20, 0x555555);
     scene.physics.add.existing(tunnelF, true);
     obstacles.add(tunnelF);
 
-    let tunnelC = scene.add.rectangle(380, 445, 60, 20, 0x555555);
+    let tunnelC = scene.add.rectangle(380, 443, 60, 20, 0x555555);
     scene.physics.add.existing(tunnelC, true);
     obstacles.add(tunnelC);
 
