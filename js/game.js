@@ -489,13 +489,19 @@ function updateBossLevel() {
     currentScene.physics.overlap(bossBullets, player, damagePlayer, null, currentScene);
 
     // Clean up off-screen bullets to prevent memory leaks
-    bullets.children.entries.forEach(bullet => {
-        if (bullet.x > 850 || bullet.x < -50 || bullet.y > 650 || bullet.y < -50) {
-            bullet.destroy();
-        }
-    });
-    bossBullets.children.entries.forEach(bullet => {
-        if (bullet.x > 850 || bullet.x < -50 || bullet.y > 650 || bullet.y < -50) {
+    cleanupOffScreenBullets(bullets);
+    cleanupOffScreenBullets(bossBullets);
+}
+
+function cleanupOffScreenBullets(bulletGroup) {
+    const margin = 50;
+    const maxX = config.width + margin;
+    const minX = -margin;
+    const maxY = config.height + margin;
+    const minY = -margin;
+    
+    bulletGroup.children.entries.forEach(bullet => {
+        if (bullet.x > maxX || bullet.x < minX || bullet.y > maxY || bullet.y < minY) {
             bullet.destroy();
         }
     });
