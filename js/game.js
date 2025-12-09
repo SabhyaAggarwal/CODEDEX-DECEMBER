@@ -412,7 +412,6 @@ function updateBossLevel() {
     }
 
     // Simple Boss Movement: Hover Y
-    // Floor is at 580. Boss height    // Simple Boss Movement: Hover Y
     // Floor is at 580. Boss height is 120 (half-height 60).
     // range: 300-400.
     boss.y = 350 + Math.sin(game.getTime() / 500) * 50;
