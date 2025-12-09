@@ -451,7 +451,8 @@ function updateBossLevel() {
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
-            // Player remains visible and vulnerable while on turret
+            // Player remains visible and vulnerable while on turret to increase difficulty
+            // Must quickly enter/exit to avoid boss bullets while shooting
             infoText.setText('Mode: TURRET (Press X to exit, Space to shoot)');
         }
     }
@@ -529,6 +530,7 @@ function damageBoss(boss, bullet) {
 
 function damagePlayer(player, bullet) {
     bullet.destroy();
+    // Player can be hit at any time, including while using turret
     failLevel();
 }
 function switchAge(newAge) {
