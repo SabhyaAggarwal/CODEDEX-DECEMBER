@@ -504,12 +504,13 @@ function cleanupOffScreenBullets(bulletGroup) {
     const maxY = config.height + margin;
     const minY = -margin;
     
-    // Use slice() to avoid modifying array while iterating
-    bulletGroup.children.entries.slice().forEach(bullet => {
+    // Iterate backwards to safely remove elements during iteration
+    for (let i = bulletGroup.children.entries.length - 1; i >= 0; i--) {
+        const bullet = bulletGroup.children.entries[i];
         if (bullet.x > maxX || bullet.x < minX || bullet.y > maxY || bullet.y < minY) {
             bullet.destroy();
         }
-    });
+    }
 }
 
 function damageBoss(boss, bullet) {
