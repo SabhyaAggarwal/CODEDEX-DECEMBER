@@ -126,7 +126,6 @@ function create() {
     });
 
     // 5. UI
-    // 5. UI
     timerText = this.add.text(16, 16, 'Time: 0', { fontSize: '32px', fill: '#fff' });
     infoText = this.add.text(16, 50, 'Age: ADULT', { fontSize: '24px', fill: '#aaa' });
     this.add.text(16, 550, 'Controls: Arrows to Move, 1: Child, 2: Adult, 3: Elder', { fontSize: '16px', fill: '#555' });
@@ -461,7 +460,7 @@ function updateBossLevel() {
     }
 
     if (onTurret) {
-        // Shooting logic logic
+        // Shooting logic
         if (cursors.space.isDown) {
             if (currentScene.time.now % 200 < 20) { // Rapid fire limit
                 let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0xffff00);
