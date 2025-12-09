@@ -471,7 +471,7 @@ function updateBossLevel() {
             onTurret = false;
             player.x = turret.x;
             player.y = turret.y - 50;
-            switchAge('adult');
+            // Keep current age when exiting turret
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
@@ -486,6 +486,11 @@ function updateBossLevel() {
     }
 
     if (onTurret) {
+        // Keep player stuck to turret - prevent falling from gravity
+        player.x = turret.x;
+        player.y = turret.y;
+        player.body.setVelocity(0, 0); // Zero out velocity to prevent gravity effect
+        
         // Turret vertical movement with arrow keys
         if (cursors.up.isDown) {
             moveTurretWithPlayer(-TURRET_MOVE_SPEED);
