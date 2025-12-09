@@ -487,6 +487,18 @@ function updateBossLevel() {
     // Collisions
     currentScene.physics.overlap(bullets, boss, damageBoss, null, currentScene);
     currentScene.physics.overlap(bossBullets, player, damagePlayer, null, currentScene);
+
+    // Clean up off-screen bullets to prevent memory leaks
+    bullets.children.entries.forEach(bullet => {
+        if (bullet.x > 850 || bullet.x < -50 || bullet.y > 650 || bullet.y < -50) {
+            bullet.destroy();
+        }
+    });
+    bossBullets.children.entries.forEach(bullet => {
+        if (bullet.x > 850 || bullet.x < -50 || bullet.y > 650 || bullet.y < -50) {
+            bullet.destroy();
+        }
+    });
 }
 
 function damageBoss(boss, bullet) {
