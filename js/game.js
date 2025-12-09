@@ -432,9 +432,9 @@ function updateBossLevel() {
         }
         bossBullets.add(bullet);
 
-        let angle = Phaser.Math.Angle.Between(boss.x, boss.y, player.x, player.y);
-        currentScene.physics.velocityFromRotation(angle, 400, bullet.body.velocity);
-        bullet.rotation = angle; // Visual Rotation
+        // Shoot straight to the left (towards the player area)
+        bullet.body.setVelocity(-400, 0);
+        bullet.rotation = Math.PI; // Visual Rotation pointing left
     }
 
     // 2. Turret Interaction
