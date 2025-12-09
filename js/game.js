@@ -355,17 +355,19 @@ function update() {
     if (isGameOver) return;
     if (isSwitching) return;
 
-    // Movement
-    if (cursors.left.isDown) {
-        player.body.setVelocityX(-AGES[currentAge].speed);
-    } else if (cursors.right.isDown) {
-        player.body.setVelocityX(AGES[currentAge].speed);
-    } else {
-        player.body.setVelocityX(0);
-    }
+    // Movement (disabled when on turret)
+    if (!onTurret) {
+        if (cursors.left.isDown) {
+            player.body.setVelocityX(-AGES[currentAge].speed);
+        } else if (cursors.right.isDown) {
+            player.body.setVelocityX(AGES[currentAge].speed);
+        } else {
+            player.body.setVelocityX(0);
+        }
 
-    if (cursors.up.isDown && player.body.touching.down) {
-        player.body.setVelocityY(AGES[currentAge].jump);
+        if (cursors.up.isDown && player.body.touching.down) {
+            player.body.setVelocityY(AGES[currentAge].jump);
+        }
     }
 
     // Age Switching
@@ -401,6 +403,9 @@ let bossShootTimer = 0;
  * @param {number} deltaY - Amount to move (positive = down, negative = up)
  */
 function moveTurretWithPlayer(deltaY) {
+    // Safety check for object existence
+    if (!turret || !player) return;
+    
     const newY = turret.y + deltaY;
     // Clamp to bounds and update both turret and player atomically
     const clampedY = Math.max(TURRET_MIN_Y, Math.min(TURRET_MAX_Y, newY));
