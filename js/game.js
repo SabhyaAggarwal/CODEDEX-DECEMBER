@@ -239,11 +239,6 @@ function buildLevel1(scene) {
     scene.physics.add.existing(platformAfter, true);
     obstacles.add(platformAfter);
 
-    // Walls to prevent shortcuts
-    let wall3 = scene.add.rectangle(540, 450, 20, 200, 0x555555);
-    scene.physics.add.existing(wall3, true);
-    obstacles.add(wall3);
-
     finishZone = scene.add.rectangle(760, 480, 40, 40, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
@@ -712,33 +707,40 @@ function switchAge(newAge) {
     currentAge = newAge;
     const stats = AGES[currentAge];
 
-    // Check if there's enough space to grow
-    if (stats.height > oldHeight || stats.width > oldWidth) {
-        // Try to find a safe position by moving upward
-        const heightDiff = stats.height - oldHeight;
-        const widthDiff = stats.width - oldWidth;
-        
-        // Move up by the height difference plus some margin
-        player.y -= heightDiff / 2 + 5;
-        
-        // If width changed, try to center the player
-        if (widthDiff > 0) {
-            // No horizontal adjustment needed, just update body
-        }
-    }
+    // Save original position
+    const originalX = player.x;
+    const originalY = player.y;
 
-    // 2. Update Visuals & Physics
+    // Update visuals and physics body size first
     player.fillColor = stats.color;
     player.width = stats.width;
     player.height = stats.height;
-
-    // Explicitly update Physics Body Size to ensure hitbox changes
     player.body.setSize(stats.width, stats.height);
-    // Note: setSize on the Game Object (Shape) does NOT automatically update the Arcade Body
-    // So we must call player.body.setSize()
     player.setSize(stats.width, stats.height);
 
-    // 3. Give a small upward velocity to help escape from tight spaces
+    // Check if there's enough space to grow
+    if (stats.height > oldHeight || stats.width > oldWidth) {
+        const heightDiff = stats.height - oldHeight;
+        const widthDiff = stats.width - oldWidth;
+        
+        // Move up by the height difference plus margin to avoid floor
+        player.y -= heightDiff / 2 + 5;
+        
+        // Check if we're overlapping with walls after growing
+        // If player is touching left or right, push them away from the wall
+        if (player.body.touching.left) {
+            // Push right away from left wall
+            player.x += widthDiff / 2 + 5;
+        } else if (player.body.touching.right) {
+            // Push left away from right wall
+            player.x -= widthDiff / 2 + 5;
+        }
+        
+        // Update body position after adjustments
+        player.body.updateFromGameObject();
+    }
+
+    // Give a small upward velocity to help escape from tight spaces
     player.body.setVelocityY(-250);
 
     infoText.setText('Age: ' + stats.name);
