@@ -215,11 +215,6 @@ function buildLevel1(scene) {
     scene.physics.add.existing(tunnelCeiling, true);
     obstacles.add(tunnelCeiling);
 
-    // Wall after tunnel exit - forces player to drop down
-    let wall2 = scene.add.rectangle(460, 450, 20, 150, 0x555555);
-    scene.physics.add.existing(wall2, true);
-    obstacles.add(wall2);
-
     // Section 3: Ghost platform gap (ELDER ONLY)
     let platformBefore = scene.add.rectangle(500, 520, 60, 20, 0x555555);
     scene.physics.add.existing(platformBefore, true);
@@ -712,36 +707,43 @@ function switchAge(newAge) {
     currentAge = newAge;
     const stats = AGES[currentAge];
 
-    // Update visuals and physics body size first
-    player.fillColor = stats.color;
-    player.width = stats.width;
-    player.height = stats.height;
-    player.body.setSize(stats.width, stats.height);
-    player.setSize(stats.width, stats.height);
-
     // Check if there's enough space to grow
     if (stats.height > oldHeight || stats.width > oldWidth) {
         const heightDiff = stats.height - oldHeight;
         const widthDiff = stats.width - oldWidth;
         
-        // Move up by the height difference plus margin to avoid floor
-        player.y -= heightDiff / 2 + 5;
+        // Move up by the height difference plus extra margin to avoid floor and ceiling
+        player.y -= heightDiff / 2 + 10;
         
-        // Check if we're overlapping with walls after growing
-        // If player is touching left or right, push them away from the wall
-        if (player.body.touching.left) {
-            // Push right away from left wall
-            player.x += widthDiff / 2 + 5;
-        } else if (player.body.touching.right) {
-            // Push left away from right wall
-            player.x -= widthDiff / 2 + 5;
+        // If width is increasing and we're near a wall, push away horizontally
+        if (widthDiff > 0) {
+            // Check blocked directions using physics body before resizing
+            const wasBlockedLeft = player.body.blocked.left || player.body.touching.left;
+            const wasBlockedRight = player.body.blocked.right || player.body.touching.right;
+            
+            if (wasBlockedLeft) {
+                // Push right away from left wall
+                player.x += widthDiff + 10;
+            } else if (wasBlockedRight) {
+                // Push left away from right wall  
+                player.x -= widthDiff + 10;
+            }
         }
-        
-        // Update body position after adjustments
-        player.body.updateFromGameObject();
-        
-        // Give a small upward velocity only when growing to help escape tight spaces
-        player.body.setVelocityY(-250);
+    }
+
+    // Update visuals and physics body size after position adjustments
+    player.fillColor = stats.color;
+    player.width = stats.width;
+    player.height = stats.height;
+    player.body.setSize(stats.width, stats.height);
+    player.setSize(stats.width, stats.height);
+    
+    // Update body position after all adjustments
+    player.body.updateFromGameObject();
+
+    // Only apply upward velocity when growing to help escape tight spaces
+    if (stats.height > oldHeight) {
+        player.body.setVelocityY(-300);
     }
 
     infoText.setText('Age: ' + stats.name);
