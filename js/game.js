@@ -51,7 +51,6 @@ const TURRET_MAX_Y = 400; // Match boss range so no safe spots
 
 // Level design constants
 const CHILD_TUNNEL_GAP = 22; // Child is 20px tall, needs small gap
-const ADULT_TUNNEL_GAP = 40;  // Adult is 48px tall, needs larger gap
 
 // Age Statistics
 const AGES = {
@@ -508,6 +507,8 @@ function update() {
 let onTurret = false;
 let bossDir = 1;
 let bossShootTimer = 0;
+let turretShootCooldown = 0;
+const TURRET_FIRE_RATE = 200; // ms between shots
 
 /**
  * Move turret and player together vertically
@@ -524,6 +525,9 @@ function moveTurretWithPlayer(deltaY) {
     const clampedY = Math.max(TURRET_MIN_Y, Math.min(TURRET_MAX_Y, newY));
     turret.y = clampedY;
     player.y = clampedY;
+    // Sync physics bodies with visual positions
+    if (turret.body) turret.body.updateFromGameObject();
+    if (player.body) player.body.updateFromGameObject();
 }
 
 function updateBossLevel() {
@@ -627,7 +631,8 @@ function updateBossLevel() {
         
         // Shooting logic
         if (cursors.space.isDown) {
-            if (currentScene.time.now % 200 < 20) { // Rapid fire limit
+            if (currentScene.time.now > turretShootCooldown) {
+                turretShootCooldown = currentScene.time.now + TURRET_FIRE_RATE;
                 let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0xffff00);
                 currentScene.physics.add.existing(bullet);
 
@@ -668,9 +673,9 @@ function cleanupOffScreenBullets(bulletGroup) {
     const maxY = config.height + margin;
     const minY = -margin;
     
-    // Iterate backwards to safely remove elements during iteration
-    for (let i = bulletGroup.children.entries.length - 1; i >= 0; i--) {
-        const bullet = bulletGroup.children.entries[i];
+    // Iterate over a copy for safe removal during iteration
+    const bullets = bulletGroup.getChildren().slice();
+    for (const bullet of bullets) {
         if (bullet.x > maxX || bullet.x < minX || bullet.y > maxY || bullet.y < minY) {
             bullet.destroy();
         }
@@ -707,10 +712,6 @@ function switchAge(newAge) {
     currentAge = newAge;
     const stats = AGES[currentAge];
 
-    // Save original position
-    const originalX = player.x;
-    const originalY = player.y;
-
     // Update visuals and physics body size first
     player.fillColor = stats.color;
     player.width = stats.width;
@@ -738,10 +739,10 @@ function switchAge(newAge) {
         
         // Update body position after adjustments
         player.body.updateFromGameObject();
+        
+        // Give a small upward velocity only when growing to help escape tight spaces
+        player.body.setVelocityY(-250);
     }
-
-    // Give a small upward velocity to help escape from tight spaces
-    player.body.setVelocityY(-250);
 
     infoText.setText('Age: ' + stats.name);
 }
