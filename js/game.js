@@ -61,7 +61,8 @@ const AGES = {
         speed: 300,
         jump: -400,
         name: 'CHILD',
-        index: 0
+        index: 0,
+        scale: 0.035  // Small scale for child
     },
     adult: {
         color: 0x0000ff,
@@ -70,7 +71,8 @@ const AGES = {
         speed: 200,
         jump: -600,
         name: 'ADULT',
-        index: 1
+        index: 1,
+        scale: 0.08   // Normal scale for adult
     },
     elder: {
         color: 0x808080,
@@ -79,17 +81,86 @@ const AGES = {
         speed: 100,
         jump: -250,
         name: 'ELDER',
-        index: 2
+        index: 2,
+        scale: 0.07   // Slightly smaller than adult
     }
 };
 
 function preload() {
-    // No assets to preload, using geometric shapes
+    // Load all sprite frames for animations
+    // Idle animation (15 frames)
+    for (let i = 1; i <= 15; i++) {
+        this.load.image(`idle${i}`, `assets/png/Idle (${i}).png`);
+    }
+    
+    // Walk animation (15 frames)
+    for (let i = 1; i <= 15; i++) {
+        this.load.image(`walk${i}`, `assets/png/Walk (${i}).png`);
+    }
+    
+    // Run animation (15 frames)
+    for (let i = 1; i <= 15; i++) {
+        this.load.image(`run${i}`, `assets/png/Run (${i}).png`);
+    }
+    
+    // Jump animation (15 frames)
+    for (let i = 1; i <= 15; i++) {
+        this.load.image(`jump${i}`, `assets/png/Jump (${i}).png`);
+    }
+    
+    // Dead animation (15 frames)
+    for (let i = 1; i <= 15; i++) {
+        this.load.image(`dead${i}`, `assets/png/Dead (${i}).png`);
+    }
 }
 
 function create() {
     currentScene = this;
     isGameOver = false;
+    
+    // Create animations once (check if they already exist to avoid recreation)
+    if (!this.anims.exists('idle')) {
+        // Idle animation
+        this.anims.create({
+            key: 'idle',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `idle${i+1}` })),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        // Walk animation
+        this.anims.create({
+            key: 'walk',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `walk${i+1}` })),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        // Run animation
+        this.anims.create({
+            key: 'run',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `run${i+1}` })),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        // Jump animation
+        this.anims.create({
+            key: 'jump',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `jump${i+1}` })),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        // Dead animation
+        this.anims.create({
+            key: 'dead',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `dead${i+1}` })),
+            frameRate: 10,
+            repeat: 0
+        });
+    }
+    
     // Level Management
     // If scene restart is partial (Phaser restarts scenes completely), 
     // we need to know which level we are on. 
@@ -112,15 +183,20 @@ function create() {
     // 1. Create Level
     createLevel(this, currentLevel);
 
-    // 2. Create Player
+    // 2. Create Player (using sprite instead of rectangle)
     // Use currentAge to persist state between levels
     const initialStats = AGES[currentAge];
-    player = this.add.rectangle(100, 450, initialStats.width, initialStats.height, initialStats.color);
+    player = this.add.sprite(100, 450, 'idle1');
+    player.setScale(initialStats.scale);
+    player.play('idle');
+    
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
-    // Explicitly set body size to match if it wasn't picked up correctly (though existing() usually does)
+    // Set physics body size based on age
     player.body.setSize(initialStats.width, initialStats.height);
+    player.body.setOffset((player.width * initialStats.scale - initialStats.width) / 2, 
+                          (player.height * initialStats.scale - initialStats.height) / 2);
 
     // 3. Collisions
     this.physics.add.collider(player, obstacles);
@@ -186,11 +262,6 @@ function buildLevel1(scene) {
     let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
-
-    // Left wall
-    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
-    scene.physics.add.existing(wall1, true);
-    obstacles.add(wall1);
 
     // Section 1: High ledge (ADULT ONLY - requires high jump -600)
     // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
@@ -464,14 +535,43 @@ function update() {
     if (!onTurret) {
         if (cursors.left.isDown) {
             player.body.setVelocityX(-AGES[currentAge].speed);
+            player.setFlipX(true); // Face left
         } else if (cursors.right.isDown) {
             player.body.setVelocityX(AGES[currentAge].speed);
+            player.setFlipX(false); // Face right
         } else {
             player.body.setVelocityX(0);
         }
 
         if (cursors.up.isDown && player.body.touching.down) {
             player.body.setVelocityY(AGES[currentAge].jump);
+        }
+    }
+
+    // Animation state machine
+    const velocity = player.body.velocity;
+    const absVelX = Math.abs(velocity.x);
+    const isOnGround = player.body.touching.down;
+    
+    if (!isOnGround) {
+        // In air - play jump animation
+        if (player.anims.currentAnim?.key !== 'jump') {
+            player.play('jump');
+        }
+    } else if (absVelX === 0) {
+        // Standing still - play idle animation
+        if (player.anims.currentAnim?.key !== 'idle') {
+            player.play('idle');
+        }
+    } else if (absVelX < 150) {
+        // Walking - play walk animation
+        if (player.anims.currentAnim?.key !== 'walk') {
+            player.play('walk');
+        }
+    } else {
+        // Running - play run animation
+        if (player.anims.currentAnim?.key !== 'run') {
+            player.play('run');
         }
     }
 
@@ -731,12 +831,11 @@ function switchAge(newAge) {
         }
     }
 
-    // Update visuals and physics body size after position adjustments
-    player.fillColor = stats.color;
-    player.width = stats.width;
-    player.height = stats.height;
+    // Update sprite scale and physics body size after position adjustments
+    player.setScale(stats.scale);
     player.body.setSize(stats.width, stats.height);
-    player.setSize(stats.width, stats.height);
+    player.body.setOffset((player.width * stats.scale - stats.width) / 2, 
+                          (player.height * stats.scale - stats.height) / 2);
     
     // Update body position after all adjustments
     player.body.updateFromGameObject();
@@ -765,11 +864,8 @@ function switchAgeRequest(newAgeKey) {
     // Pause Game
     currentScene.physics.pause();
     levelTimer.paused = true;
-    // Rectangle shape does not support setTint, change fill color instead
-    // Darken the current color: 0x888888 tint equivalent is basically half brightness
-    // But easier to just set to grey for the pause duration
-    player.lastColor = player.fillColor; // Save current color
-    player.setFillStyle(0x555555);
+    // Use tint for sprites instead of fillColor
+    player.setTint(0x555555);
 
     // Determine duration and icon
     const baseDelay = 500; // 0.5 seconds per step
@@ -797,9 +893,8 @@ function completeSwitch(newAgeKey) {
     isSwitching = false;
     currentScene.physics.resume();
     levelTimer.paused = false;
-    // Color is reset inside switchAge() via player.fillColor = stats.color
-    // So we don't need to manually restore it here except by calling switchAge which we did above.
-    // player.clearTint(); // Removed as it caused error
+    // Clear tint to restore normal sprite color
+    player.clearTint();
 
     // Hide visuals
     transitionText.setVisible(false);
