@@ -77,7 +77,7 @@ const AGES = {
         width: 32,
         height: 40,
         speed: 100,
-        jump: -250,
+        jump: -450,
         name: 'ELDER',
         index: 2
     }
@@ -115,7 +115,7 @@ function create() {
     // 2. Create Player
     // Use currentAge to persist state between levels
     const initialStats = AGES[currentAge];
-    player = this.add.rectangle(100, 450, initialStats.width, initialStats.height, initialStats.color);
+    player = this.add.rectangle(50, 450, initialStats.width, initialStats.height, initialStats.color);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
@@ -204,20 +204,20 @@ function buildLevel1(scene) {
     obstacles.add(pillarTop);
 
     // Three ascending ghost platforms
-    let plat1 = scene.add.rectangle(300, 500, 100, 20, 0xffffff).setAlpha(0.1);
+    let plat1 = scene.add.rectangle(250, 400, 100, 20, 0xffffff).setAlpha(0.1);
     scene.physics.add.existing(plat1, true);
     ghostPlatforms.add(plat1);
 
-    let plat2 = scene.add.rectangle(450, 450, 100, 20, 0xffffff).setAlpha(0.1);
+    let plat2 = scene.add.rectangle(400, 350, 100, 20, 0xffffff).setAlpha(0.1);
     scene.physics.add.existing(plat2, true);
     ghostPlatforms.add(plat2);
 
-    let plat3 = scene.add.rectangle(600, 400, 100, 20, 0xffffff).setAlpha(0.1);
+    let plat3 = scene.add.rectangle(550, 300, 100, 20, 0xffffff).setAlpha(0.1);
     scene.physics.add.existing(plat3, true);
     ghostPlatforms.add(plat3);
 
     // Finish zone
-    finishZone = scene.add.rectangle(750, 350, 50, 50, 0x00ff00);
+    finishZone = scene.add.rectangle(750, 250, 50, 50, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
 
