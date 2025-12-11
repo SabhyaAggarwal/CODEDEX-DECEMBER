@@ -217,7 +217,7 @@ function buildLevel1(scene) {
     ghostPlatforms.add(plat3);
 
     // Finish zone
-    finishZone = scene.add.rectangle(750, 250, 50, 50, 0x00ff00);
+    finishZone = scene.add.rectangle(700, 250, 50, 50, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
 
