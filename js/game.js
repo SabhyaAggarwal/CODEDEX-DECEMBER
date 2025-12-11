@@ -87,75 +87,145 @@ const AGES = {
 };
 
 function preload() {
-    // Load all sprite frames for animations
-    // Idle animation (15 frames)
+    // Load sprite sheets for each age
+    // Child uses flatboy sprites from png folder
+    // Adult uses adult.png sprite sheet
+    // Elder uses elder.png sprite sheet
+    
+    // Child (flatboy) - Load all frames from png folder
     for (let i = 1; i <= 15; i++) {
-        this.load.image(`idle${i}`, `assets/png/Idle (${i}).png`);
+        this.load.image(`child_idle${i}`, `assets/png/Idle (${i}).png`);
+        this.load.image(`child_walk${i}`, `assets/png/Walk (${i}).png`);
+        this.load.image(`child_run${i}`, `assets/png/Run (${i}).png`);
+        this.load.image(`child_jump${i}`, `assets/png/Jump (${i}).png`);
+        this.load.image(`child_dead${i}`, `assets/png/Dead (${i}).png`);
     }
     
-    // Walk animation (15 frames)
-    for (let i = 1; i <= 15; i++) {
-        this.load.image(`walk${i}`, `assets/png/Walk (${i}).png`);
-    }
+    // Adult - Load sprite sheet
+    this.load.spritesheet('adult_sheet', 'assets/adult.png', { 
+        frameWidth: 614, 
+        frameHeight: 564 
+    });
     
-    // Run animation (15 frames)
-    for (let i = 1; i <= 15; i++) {
-        this.load.image(`run${i}`, `assets/png/Run (${i}).png`);
-    }
+    // Elder - Load sprite sheet
+    this.load.spritesheet('elder_sheet', 'assets/elder.png', { 
+        frameWidth: 614, 
+        frameHeight: 564 
+    });
     
-    // Jump animation (15 frames)
-    for (let i = 1; i <= 15; i++) {
-        this.load.image(`jump${i}`, `assets/png/Jump (${i}).png`);
-    }
-    
-    // Dead animation (15 frames)
-    for (let i = 1; i <= 15; i++) {
-        this.load.image(`dead${i}`, `assets/png/Dead (${i}).png`);
-    }
 }
 
 function create() {
     currentScene = this;
     isGameOver = false;
     
-    // Create animations once (check if they already exist to avoid recreation)
-    if (!this.anims.exists('idle')) {
-        // Idle animation
+    // Create animations for each age
+    if (!this.anims.exists('child_idle')) {
+        // CHILD animations (from flatboy sprite frames)
         this.anims.create({
-            key: 'idle',
-            frames: Array.from({length: 15}, (_, i) => ({ key: `idle${i+1}` })),
+            key: 'child_idle',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `child_idle${i+1}` })),
             frameRate: 10,
             repeat: -1
         });
         
-        // Walk animation
         this.anims.create({
-            key: 'walk',
-            frames: Array.from({length: 15}, (_, i) => ({ key: `walk${i+1}` })),
+            key: 'child_walk',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `child_walk${i+1}` })),
             frameRate: 10,
             repeat: -1
         });
         
-        // Run animation
         this.anims.create({
-            key: 'run',
-            frames: Array.from({length: 15}, (_, i) => ({ key: `run${i+1}` })),
+            key: 'child_run',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `child_run${i+1}` })),
             frameRate: 10,
             repeat: -1
         });
         
-        // Jump animation
         this.anims.create({
-            key: 'jump',
-            frames: Array.from({length: 15}, (_, i) => ({ key: `jump${i+1}` })),
+            key: 'child_jump',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `child_jump${i+1}` })),
             frameRate: 10,
             repeat: -1
         });
         
-        // Dead animation
         this.anims.create({
-            key: 'dead',
-            frames: Array.from({length: 15}, (_, i) => ({ key: `dead${i+1}` })),
+            key: 'child_dead',
+            frames: Array.from({length: 15}, (_, i) => ({ key: `child_dead${i+1}` })),
+            frameRate: 10,
+            repeat: 0
+        });
+        
+        // ADULT animations (from adult.png sprite sheet)
+        // Assuming adult.png has same frame layout as flatboy
+        this.anims.create({
+            key: 'adult_idle',
+            frames: this.anims.generateFrameNumbers('adult_sheet', { start: 0, end: 14 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'adult_walk',
+            frames: this.anims.generateFrameNumbers('adult_sheet', { start: 15, end: 29 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'adult_run',
+            frames: this.anims.generateFrameNumbers('adult_sheet', { start: 30, end: 44 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'adult_jump',
+            frames: this.anims.generateFrameNumbers('adult_sheet', { start: 45, end: 59 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'adult_dead',
+            frames: this.anims.generateFrameNumbers('adult_sheet', { start: 60, end: 74 }),
+            frameRate: 10,
+            repeat: 0
+        });
+        
+        // ELDER animations (from elder.png sprite sheet)
+        this.anims.create({
+            key: 'elder_idle',
+            frames: this.anims.generateFrameNumbers('elder_sheet', { start: 0, end: 14 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'elder_walk',
+            frames: this.anims.generateFrameNumbers('elder_sheet', { start: 15, end: 29 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'elder_run',
+            frames: this.anims.generateFrameNumbers('elder_sheet', { start: 30, end: 44 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'elder_jump',
+            frames: this.anims.generateFrameNumbers('elder_sheet', { start: 45, end: 59 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'elder_dead',
+            frames: this.anims.generateFrameNumbers('elder_sheet', { start: 60, end: 74 }),
             frameRate: 10,
             repeat: 0
         });
@@ -183,20 +253,42 @@ function create() {
     // 1. Create Level
     createLevel(this, currentLevel);
 
-    // 2. Create Player (using sprite instead of rectangle)
+    // 2. Create Player (using sprite for current age)
     // Use currentAge to persist state between levels
     const initialStats = AGES[currentAge];
-    player = this.add.sprite(100, 450, 'idle1');
+    
+    // Determine initial sprite key based on age
+    let initialSpriteKey;
+    if (currentAge === 'child') {
+        initialSpriteKey = 'child_idle1';
+    } else if (currentAge === 'adult') {
+        initialSpriteKey = 'adult_sheet';
+    } else {
+        initialSpriteKey = 'elder_sheet';
+    }
+    
+    player = this.add.sprite(100, 520, initialSpriteKey);
     player.setScale(initialStats.scale);
-    player.play('idle');
+    player.play(`${currentAge}_idle`);
     
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
     // Set physics body size based on age
     player.body.setSize(initialStats.width, initialStats.height);
-    player.body.setOffset((player.width * initialStats.scale - initialStats.width) / 2, 
-                          (player.height * initialStats.scale - initialStats.height) / 2);
+    
+    // Fix hitbox offset - sprite origin is at center (0.5, 0.5)
+    // We need to offset the physics body so it aligns with the bottom of the sprite
+    // The sprite is scaled, so actual display height is sprite.height * scale
+    // Physics body should be at the bottom of the visual sprite
+    const spriteDisplayHeight = player.height * initialStats.scale;
+    const spriteDisplayWidth = player.width * initialStats.scale;
+    
+    // Center the physics body horizontally and align to bottom
+    const offsetX = (spriteDisplayWidth - initialStats.width) / 2;
+    const offsetY = spriteDisplayHeight - initialStats.height;
+    
+    player.body.setOffset(offsetX, offsetY);
 
     // 3. Collisions
     this.physics.add.collider(player, obstacles);
@@ -268,11 +360,6 @@ function buildLevel1(scene) {
     let ledge1 = scene.add.rectangle(150, 480, 100, 220, 0x555555);
     scene.physics.add.existing(ledge1, true);
     obstacles.add(ledge1);
-
-    // Ceiling above ledge to prevent child from bouncing over
-    let ceiling1 = scene.add.rectangle(150, 320, 100, 100, 0x555555);
-    scene.physics.add.existing(ceiling1, true);
-    obstacles.add(ceiling1);
 
     // Section 2: Tight tunnel (CHILD ONLY - 25px gap, child is 20px)
     // Tunnel at comfortable height for child to reach from ledge
@@ -553,25 +640,32 @@ function update() {
     const absVelX = Math.abs(velocity.x);
     const isOnGround = player.body.touching.down;
     
+    // Determine animation suffix based on current age
+    const animPrefix = currentAge;
+    
     if (!isOnGround) {
-        // In air - play jump animation
-        if (player.anims.currentAnim?.key !== 'jump') {
-            player.play('jump');
+        // In air - play jump animation for current age
+        const jumpAnim = `${animPrefix}_jump`;
+        if (player.anims.currentAnim?.key !== jumpAnim) {
+            player.play(jumpAnim);
         }
     } else if (absVelX === 0) {
-        // Standing still - play idle animation
-        if (player.anims.currentAnim?.key !== 'idle') {
-            player.play('idle');
+        // Standing still - play idle animation for current age
+        const idleAnim = `${animPrefix}_idle`;
+        if (player.anims.currentAnim?.key !== idleAnim) {
+            player.play(idleAnim);
         }
     } else if (absVelX < 150) {
-        // Walking - play walk animation
-        if (player.anims.currentAnim?.key !== 'walk') {
-            player.play('walk');
+        // Walking - play walk animation for current age
+        const walkAnim = `${animPrefix}_walk`;
+        if (player.anims.currentAnim?.key !== walkAnim) {
+            player.play(walkAnim);
         }
     } else {
-        // Running - play run animation
-        if (player.anims.currentAnim?.key !== 'run') {
-            player.play('run');
+        // Running - play run animation for current age
+        const runAnim = `${animPrefix}_run`;
+        if (player.anims.currentAnim?.key !== runAnim) {
+            player.play(runAnim);
         }
     }
 
@@ -834,8 +928,13 @@ function switchAge(newAge) {
     // Update sprite scale and physics body size after position adjustments
     player.setScale(stats.scale);
     player.body.setSize(stats.width, stats.height);
-    player.body.setOffset((player.width * stats.scale - stats.width) / 2, 
-                          (player.height * stats.scale - stats.height) / 2);
+    
+    // Fix hitbox offset - align physics body to bottom of sprite
+    const spriteDisplayHeight = player.height * stats.scale;
+    const spriteDisplayWidth = player.width * stats.scale;
+    const offsetX = (spriteDisplayWidth - stats.width) / 2;
+    const offsetY = spriteDisplayHeight - stats.height;
+    player.body.setOffset(offsetX, offsetY);
     
     // Update body position after all adjustments
     player.body.updateFromGameObject();
@@ -844,6 +943,9 @@ function switchAge(newAge) {
     if (stats.height > oldHeight) {
         player.body.setVelocityY(-300);
     }
+    
+    // Switch to correct animation for new age
+    player.play(`${currentAge}_idle`);
 
     infoText.setText('Age: ' + stats.name);
 }
