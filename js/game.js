@@ -77,7 +77,7 @@ const AGES = {
         width: 32,
         height: 40,
         speed: 100,
-        jump: -350,
+        jump: -250,
         name: 'ELDER',
         index: 2
     }
@@ -188,9 +188,9 @@ function buildLevel1(scene) {
     obstacles.add(floor);
 
     // Left wall
-    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
-    scene.physics.add.existing(wall1, true);
-    obstacles.add(wall1);
+    // let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
+    // scene.physics.add.existing(wall1, true);
+    // obstacles.add(wall1);
 
     // Section 1: High ledge (ADULT ONLY - requires high jump -600)
     // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
