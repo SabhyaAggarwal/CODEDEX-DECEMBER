@@ -77,7 +77,7 @@ const AGES = {
         width: 32,
         height: 40,
         speed: 100,
-        jump: -250,
+        jump: -350,
         name: 'ELDER',
         index: 2
     }
