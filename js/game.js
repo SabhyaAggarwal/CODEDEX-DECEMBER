@@ -188,20 +188,10 @@ function buildLevel1(scene) {
     obstacles.add(floor);
 
     // Left wall
-    // let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
-    // scene.physics.add.existing(wall1, true);
-    // obstacles.add(wall1);
+    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
+    scene.physics.add.existing(wall1, true);
+    obstacles.add(wall1);
 
-    // Section 1: High ledge (ADULT ONLY - requires high jump -600)
-    // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
-    let ledge1 = scene.add.rectangle(150, 480, 100, 220, 0x555555);
-    scene.physics.add.existing(ledge1, true);
-    obstacles.add(ledge1);
-
-    // Ceiling above ledge to prevent child from bouncing over
-    let ceiling1 = scene.add.rectangle(150, 320, 100, 100, 0x555555);
-    scene.physics.add.existing(ceiling1, true);
-    obstacles.add(ceiling1);
 
     // Section 2: Tight tunnel (CHILD ONLY - 25px gap, child is 20px)
     // Tunnel at comfortable height for child to reach from ledge
