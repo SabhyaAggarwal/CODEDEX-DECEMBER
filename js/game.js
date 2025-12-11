@@ -17,8 +17,7 @@ const config = {
     }
 };
 
-const game = new Phaser.Game(config);
-
+let game;
 let player;
 let cursors;
 let keys;
@@ -825,4 +824,35 @@ function winGame(player, goal) {
 function hitBossBody(player, boss) {
     // Damage player?
     failLevel();
+}
+
+// Menu and Game Start Logic
+window.addEventListener('load', () => {
+    const playButton = document.getElementById('play-button');
+    const instructionsButton = document.getElementById('instructions-button');
+    const backButton = document.getElementById('back-button');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const mainMenu = document.getElementById('main-menu');
+    const instructionsScreen = document.getElementById('instructions-screen');
+    const gameContainer = document.getElementById('game-container');
+
+    playButton.addEventListener('click', () => {
+        menuOverlay.style.display = 'none';
+        gameContainer.style.display = 'block';
+        startGame();
+    });
+
+    instructionsButton.addEventListener('click', () => {
+        mainMenu.style.display = 'none';
+        instructionsScreen.style.display = 'block';
+    });
+
+    backButton.addEventListener('click', () => {
+        instructionsScreen.style.display = 'none';
+        mainMenu.style.display = 'block';
+    });
+});
+
+function startGame() {
+    game = new Phaser.Game(config);
 }
