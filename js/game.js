@@ -86,6 +86,13 @@ function preload() {
     // No assets to preload, using geometric shapes
 }
 
+/**
+ * Initialize the game scene for the current level, creating level geometry, player, input, UI, timers, and collision handlers.
+ *
+ * Sets scene state (currentScene, isGameOver), preserves or resets timers and boss health based on currentLevel, constructs the level,
+ * creates the player entity and physics body, configures collisions with obstacles and ghost platforms, registers input keys,
+ * creates on-screen UI (timer and info text), starts the per-second level timer event, sets up finish-zone overlap, and prepares transition UI elements.
+ */
 function create() {
     currentScene = this;
     isGameOver = false;
@@ -154,6 +161,14 @@ function create() {
     transitionIcon = this.add.text(400, 300, '', { fontSize: '48px', fill: '#ff0', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setVisible(false).setDepth(100);
 }
 
+/**
+ * Initialize physics groups and build geometry for the specified level.
+ *
+ * Creates or resets global groups (obstacles, ghostPlatforms, bullets, bossBullets), logs the level being built, and delegates construction to the appropriate level builder for the given level index.
+ *
+ * @param {Phaser.Scene} scene - The scene used to create physics groups and game objects.
+ * @param {number} level - Level index (1–5) selecting which level builder to invoke; values outside this range default to level 1.
+ */
 function createLevel(scene, level) {
     // Static obstacles group
     obstacles = scene.physics.add.staticGroup();
@@ -179,7 +194,11 @@ function createLevel(scene, level) {
     }
 }
 
-// LEVEL 1: Redesigned based on user image
+/**
+ * Build the Level 1 geometry: static floor, left wall, a tall pillar with a 22px child gap, three ascending ghost platforms, and the finish zone.
+ * Creates and registers physics-enabled static bodies for obstacles and ghost platforms, and places the finish zone for level completion.
+ * @param {Phaser.Scene} scene - Scene used to add display objects and physics bodies.
+ */
 function buildLevel1(scene) {
     // Floor
     let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
@@ -220,7 +239,13 @@ function buildLevel1(scene) {
     scene.physics.add.existing(finishZone, true);
 }
 
-// LEVEL 2: The Tunnel and the Moat
+/**
+ * Build the geometry and interactive objects for Level 2: an entry platform, a wall that funnels into a child-only tunnel, a moat spanned by elder-only ghost platforms, and a final platform with the level exit.
+ * 
+ * Constructs static physics bodies for the entry platform, forcing wall, tunnel floor and ceiling (using CHILD_TUNNEL_GAP), three ghost platforms intended for the elder age, a final solid platform, and assigns the green exit rectangle to the global `finishZone`.
+ * 
+ * @param {Phaser.Scene} scene - The scene in which to create level objects.
+ */
 function buildLevel2(scene) {
     // Entry point platform
     let entryPlatform = scene.add.rectangle(100, 580, 200, 40, 0x654321);
@@ -809,6 +834,12 @@ function winGame(player, goal) {
     }
 }
 
+/**
+ * Handle a collision between the player and the boss body by ending the current level.
+ *
+ * @param {object} player - The player game object involved in the collision.
+ * @param {object} boss - The boss game object involved in the collision.
+ */
 function hitBossBody(player, boss) {
     // Damage player?
     failLevel();
@@ -841,6 +872,11 @@ window.addEventListener('load', () => {
     });
 });
 
+/**
+ * Initialize and start the Phaser game using the predefined configuration.
+ *
+ * Creates a new Phaser.Game and assigns it to the module-level `game` variable.
+ */
 function startGame() {
     game = new Phaser.Game(config);
 }
