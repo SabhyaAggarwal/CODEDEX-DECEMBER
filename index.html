@@ -16,15 +16,79 @@
             color: white;
             font-family: 'Courier New', Courier, monospace;
         }
-
         #game-container {
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: none; /* Hide game initially */
+        }
+        .menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .menu-button {
+            background-color: #555;
+            color: white;
+            border: 2px solid #fff;
+            padding: 15px 30px;
+            font-size: 24px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .menu-button:hover {
+            background-color: #777;
+        }
+        #instructions-screen {
+            display: none; /* Hidden by default */
+            padding: 20px;
+            max-width: 600px;
+        }
+        #instructions-screen h2 {
+            margin-top: 0;
+        }
+        #instructions-screen ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        #instructions-screen li {
+            margin-bottom: 10px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 </head>
 
 <body>
+    <div class="menu-overlay" id="menu-overlay">
+        <div id="main-menu">
+            <h1>Age Shifter</h1>
+            <button class="menu-button" id="play-button">Play</button>
+            <button class="menu-button" id="instructions-button">Instructions</button>
+        </div>
+        <div id="instructions-screen">
+            <h2>Instructions</h2>
+            <ul>
+                <li><strong>Arrow Keys:</strong> Move left and right, and jump.</li>
+                <li><strong>Number Keys (1, 2, 3):</strong> Switch between ages.</li>
+                <li><strong>1 - Child:</strong> Smallest and fastest, can fit through tight gaps.</li>
+                <li><strong>2 - Adult:</strong> Strongest jumper.</li>
+                <li><strong>3 - Elder:</strong> Can see and interact with mysterious 'ghost' platforms (the faint white blocks).</li>
+                <li><strong>Boss Level Controls:</strong></li>
+                <li><strong>X Key:</strong> Enter or exit the turret.</li>
+                <li><strong>Arrow Keys (Up/Down):</strong> Aim the turret.</li>
+                <li><strong>Spacebar:</strong> Fire the turret.</li>
+            </ul>
+            <button class="menu-button" id="back-button">Back</button>
+        </div>
+    </div>
+
     <div id="game-container"></div>
     <script src="js/game.js?v=3"></script>
 </body>
