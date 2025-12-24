@@ -827,8 +827,11 @@ window.addEventListener('load', () => {
     if (!playButton || !instructionsButton || !backButton ||
         !menuOverlay || !mainMenu || !instructionsScreen || !gameContainer) {
         console.error('Menu initialization failed: one or more required DOM elements are missing.');
-        // Display user-friendly error message
-        document.body.innerHTML = '<div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;"><h1>Error</h1><p>Failed to load game menu. Please refresh the page.</p></div>';
+        // Display user-friendly error message without replacing the entire document body
+        const errorContainer = document.createElement('div');
+        errorContainer.style.cssText = 'text-align: center; padding: 50px; font-family: Arial, sans-serif;';
+        errorContainer.innerHTML = '<h1>Error</h1><p>Failed to load game menu. Please refresh the page.</p>';
+        document.body.appendChild(errorContainer);
         return;
     }
     playButton.addEventListener('click', () => {
