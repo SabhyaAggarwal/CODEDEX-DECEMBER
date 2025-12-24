@@ -829,6 +829,11 @@ window.addEventListener('load', () => {
         console.error('Menu initialization failed: one or more required DOM elements are missing.');
         return;
     }
+    if (!playButton || !instructionsButton || !backButton ||
+        !menuOverlay || !mainMenu || !instructionsScreen || !gameContainer) {
+        console.error('Menu initialization failed: one or more required DOM elements are missing.');
+        return;
+    }
     playButton.addEventListener('click', () => {
         menuOverlay.style.display = 'none';
         gameContainer.style.display = 'block';
