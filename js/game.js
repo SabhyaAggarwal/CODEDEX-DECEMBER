@@ -853,7 +853,13 @@ window.addEventListener('load', () => {
 
 let gameStarted = false;
 
+let gameStarted = false;
+
 function startGame() {
+    if (gameStarted) {
+        return;
+    }
+    gameStarted = true;
     if (gameStarted) {
         return;
     }
