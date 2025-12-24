@@ -191,7 +191,7 @@ function buildLevel1(scene) {
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Tall pillar with a gap for the child (22px high)
+    // Tall pillar with a 22px high gap for the child
     // Floor top is at y=560.
     let pillarBase = scene.add.rectangle(100, 550, 40, 20, 0x555555);
     scene.physics.add.existing(pillarBase, true);
@@ -262,7 +262,7 @@ function buildLevel2(scene) {
     scene.physics.add.existing(finalPlatform, true);
     obstacles.add(finalPlatform);
 
-    // The green box for exit
+    // The green box for the exit
     finishZone = scene.add.rectangle(780, 310, 40, 40, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
@@ -827,11 +827,8 @@ window.addEventListener('load', () => {
     if (!playButton || !instructionsButton || !backButton ||
         !menuOverlay || !mainMenu || !instructionsScreen || !gameContainer) {
         console.error('Menu initialization failed: one or more required DOM elements are missing.');
-        return;
-    }
-    if (!playButton || !instructionsButton || !backButton ||
-        !menuOverlay || !mainMenu || !instructionsScreen || !gameContainer) {
-        console.error('Menu initialization failed: one or more required DOM elements are missing.');
+        // Display user-friendly error message
+        document.body.innerHTML = '<div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;"><h1>Error</h1><p>Failed to load game menu. Please refresh the page.</p></div>';
         return;
     }
     playButton.addEventListener('click', () => {
@@ -853,13 +850,7 @@ window.addEventListener('load', () => {
 
 let gameStarted = false;
 
-let gameStarted = false;
-
 function startGame() {
-    if (gameStarted) {
-        return;
-    }
-    gameStarted = true;
     if (gameStarted) {
         return;
     }
