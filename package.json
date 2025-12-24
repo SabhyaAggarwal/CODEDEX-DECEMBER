@@ -1,0 +1,31 @@
+{
+  "name": "codedex-december-game",
+  "version": "1.0.0",
+  "description": "Phaser platformer game with age-switching mechanics",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/js/__tests__/setup.js"],
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "!js/**/*.test.js",
+      "!js/__tests__/**"
+    ],
+    "moduleNameMapper": {
+      "^phaser$": "<rootDir>/js/__tests__/__mocks__/phaser.js"
+    }
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^9.3.3",
+    "@testing-library/jest-dom": "^6.1.5",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}
