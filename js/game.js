@@ -846,6 +846,12 @@ window.addEventListener('load', () => {
     });
 });
 
+let gameStarted = false;
+
 function startGame() {
+    if (gameStarted) {
+        return;
+    }
+    gameStarted = true;
     game = new Phaser.Game(config);
 }
