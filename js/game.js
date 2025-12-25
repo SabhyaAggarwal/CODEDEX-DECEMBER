@@ -18,6 +18,7 @@ const config = {
 };
 
 let game;
+
 let player;
 let cursors;
 let keys;
@@ -58,7 +59,7 @@ const AGES = {
         width: 20,
         height: 20,
         speed: 300,
-        jump: -500,
+        jump: -400,
         name: 'CHILD',
         index: 0
     },
@@ -76,7 +77,7 @@ const AGES = {
         width: 32,
         height: 40,
         speed: 100,
-        jump: -450,
+        jump: -250,
         name: 'ELDER',
         index: 2
     }
@@ -114,7 +115,7 @@ function create() {
     // 2. Create Player
     // Use currentAge to persist state between levels
     const initialStats = AGES[currentAge];
-    player = this.add.rectangle(50, 450, initialStats.width, initialStats.height, initialStats.color);
+    player = this.add.rectangle(100, 450, initialStats.width, initialStats.height, initialStats.color);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
@@ -179,91 +180,119 @@ function createLevel(scene, level) {
     }
 }
 
-// LEVEL 1: Redesigned based on user image
+// LEVEL 1: Age-Switching Tutorial - Requires all three ages
 function buildLevel1(scene) {
     // Floor
     let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Wall on the extreme left
+    // Left wall
     let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Tall pillar with a 22px high gap for the child
-    // Floor top is at y=560.
-    let pillarBase = scene.add.rectangle(100, 550, 40, 20, 0x555555);
-    scene.physics.add.existing(pillarBase, true);
-    obstacles.add(pillarBase);
+    // Section 1: High ledge (ADULT ONLY - requires high jump -600)
+    // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
+    let ledge1 = scene.add.rectangle(150, 480, 100, 220, 0x555555);
+    scene.physics.add.existing(ledge1, true);
+    obstacles.add(ledge1);
 
-    // Gap of 22px above the base. Base top is at 540. Pillar bottom is at 518.
-    let pillarTop = scene.add.rectangle(100, 268, 40, 500, 0x555555);
-    scene.physics.add.existing(pillarTop, true);
-    obstacles.add(pillarTop);
+    // Ceiling above ledge to prevent child from bouncing over
+    let ceiling1 = scene.add.rectangle(150, 320, 100, 100, 0x555555);
+    scene.physics.add.existing(ceiling1, true);
+    obstacles.add(ceiling1);
 
-    // Three ascending ghost platforms
-    let plat1 = scene.add.rectangle(250, 400, 100, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(plat1, true);
-    ghostPlatforms.add(plat1);
-
-    let plat2 = scene.add.rectangle(400, 350, 100, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(plat2, true);
-    ghostPlatforms.add(plat2);
-
-    let plat3 = scene.add.rectangle(550, 300, 100, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(plat3, true);
-    ghostPlatforms.add(plat3);
-
-    // Finish zone
-    finishZone = scene.add.rectangle(700, 250, 50, 50, 0x00ff00);
-    scene.physics.add.existing(finishZone, true);
-}
-
-// LEVEL 2: The Tunnel and the Moat
-function buildLevel2(scene) {
-    // Entry point platform
-    let entryPlatform = scene.add.rectangle(100, 580, 200, 40, 0x654321);
-    scene.physics.add.existing(entryPlatform, true);
-    obstacles.add(entryPlatform);
-
-    // Wall forcing the player into the tunnel
-    let wall = scene.add.rectangle(200, 300, 40, 500, 0x555555);
-    scene.physics.add.existing(wall, true);
-    obstacles.add(wall);
-
-    // The tunnel (child-only)
-    // Tunnel starts at x=220, length is 400 (half the level)
-    let tunnelFloor = scene.add.rectangle(420, 520, 400, 20, 0x555555);
+    // Section 2: Tight tunnel (CHILD ONLY - 25px gap, child is 20px)
+    // Tunnel at comfortable height for child to reach from ledge
+    // Floor at 390, height 20 -> top at 380
+    // Ceiling should have bottom at 380-25=355, so center at 355-10=345
+    let tunnelFloor = scene.add.rectangle(350, 390, 200, 20, 0x555555);
     scene.physics.add.existing(tunnelFloor, true);
     obstacles.add(tunnelFloor);
-    let tunnelCeiling = scene.add.rectangle(420, 520 - 20 - CHILD_TUNNEL_GAP, 400, 20, 0x555555);
+
+    let tunnelCeiling = scene.add.rectangle(350, 345, 200, 20, 0x555555);
     scene.physics.add.existing(tunnelCeiling, true);
     obstacles.add(tunnelCeiling);
 
-    // The endless moat (the gap after the tunnel)
-    // Tunnel ends at x=620. Moat starts after that.
+    // Section 3: Ghost platform gap (ELDER ONLY)
+    let platformBefore = scene.add.rectangle(500, 520, 60, 20, 0x555555);
+    scene.physics.add.existing(platformBefore, true);
+    obstacles.add(platformBefore);
 
-    // Three ghost blocks for the elder
-    let ghost1 = scene.add.rectangle(650, 500, 80, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(ghost1, true);
-    ghostPlatforms.add(ghost1);
+    // Ghost platforms across gap
+    let gp1 = scene.add.rectangle(580, 520, 50, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(gp1, true);
+    ghostPlatforms.add(gp1);
 
-    let ghost2 = scene.add.rectangle(750, 450, 80, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(ghost2, true);
-    ghostPlatforms.add(ghost2);
+    let gp2 = scene.add.rectangle(650, 520, 50, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(gp2, true);
+    ghostPlatforms.add(gp2);
 
-    let ghost3 = scene.add.rectangle(650, 400, 80, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(ghost3, true);
-    ghostPlatforms.add(ghost3);
+    let platformAfter = scene.add.rectangle(720, 520, 60, 20, 0x555555);
+    scene.physics.add.existing(platformAfter, true);
+    obstacles.add(platformAfter);
 
-    // Final platform with the exit
-    let finalPlatform = scene.add.rectangle(750, 350, 100, 20, 0x555555);
-    scene.physics.add.existing(finalPlatform, true);
-    obstacles.add(finalPlatform);
+    finishZone = scene.add.rectangle(760, 480, 40, 40, 0x00ff00);
+    scene.physics.add.existing(finishZone, true);
+}
 
-    // The green box for the exit
-    finishZone = scene.add.rectangle(780, 310, 40, 40, 0x00ff00);
+// LEVEL 2: Vertical Tower - Requires Adult jumps, Child tunnels, Elder ghosts
+function buildLevel2(scene) {
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    scene.physics.add.existing(floor, true);
+    obstacles.add(floor);
+
+    // Stage 1: Adult jump to first platform (130px jump)
+    let p1 = scene.add.rectangle(100, 450, 120, 20, 0x555555);
+    scene.physics.add.existing(p1, true);
+    obstacles.add(p1);
+
+    // Tall wall to prevent shortcuts
+    let wall1 = scene.add.rectangle(180, 350, 20, 280, 0x555555);
+    scene.physics.add.existing(wall1, true);
+    obstacles.add(wall1);
+
+    // Stage 2: Child-only tunnel to reach next area (22px gap)
+    // Floor at 465, height 20 -> top at 455
+    // Ceiling should have bottom at 455-22=433, so center at 433-10=423
+    let tunnelFloor1 = scene.add.rectangle(280, 465, 120, 20, 0x555555);
+    scene.physics.add.existing(tunnelFloor1, true);
+    obstacles.add(tunnelFloor1);
+
+    let tunnelCeil1 = scene.add.rectangle(280, 423, 120, 20, 0x555555);
+    scene.physics.add.existing(tunnelCeil1, true);
+    obstacles.add(tunnelCeil1);
+
+    // Stage 3: Adult jump to higher platform (150px jump)
+    let p2 = scene.add.rectangle(420, 340, 100, 20, 0x555555);
+    scene.physics.add.existing(p2, true);
+    obstacles.add(p2);
+
+    // Wall to prevent shortcuts
+    let wall2 = scene.add.rectangle(480, 250, 20, 200, 0x555555);
+    scene.physics.add.existing(wall2, true);
+    obstacles.add(wall2);
+
+    // Stage 4: Ghost platforms (Elder only)
+    let gp1 = scene.add.rectangle(540, 340, 60, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(gp1, true);
+    ghostPlatforms.add(gp1);
+
+    let gp2 = scene.add.rectangle(620, 280, 60, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(gp2, true);
+    ghostPlatforms.add(gp2);
+
+    let gp3 = scene.add.rectangle(700, 220, 60, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(gp3, true);
+    ghostPlatforms.add(gp3);
+
+    // Final platform
+    let finalPlat = scene.add.rectangle(750, 200, 80, 20, 0x555555);
+    scene.physics.add.existing(finalPlat, true);
+    obstacles.add(finalPlat);
+
+    finishZone = scene.add.rectangle(770, 160, 40, 40, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
 
@@ -824,16 +853,6 @@ window.addEventListener('load', () => {
     const instructionsScreen = document.getElementById('instructions-screen');
     const gameContainer = document.getElementById('game-container');
 
-    if (!playButton || !instructionsButton || !backButton ||
-        !menuOverlay || !mainMenu || !instructionsScreen || !gameContainer) {
-        console.error('Menu initialization failed: one or more required DOM elements are missing.');
-        // Display user-friendly error message without replacing the entire document body
-        const errorContainer = document.createElement('div');
-        errorContainer.style.cssText = 'text-align: center; padding: 50px; font-family: Arial, sans-serif;';
-        errorContainer.innerHTML = '<h1>Error</h1><p>Failed to load game menu. Please refresh the page.</p>';
-        document.body.appendChild(errorContainer);
-        return;
-    }
     playButton.addEventListener('click', () => {
         menuOverlay.style.display = 'none';
         gameContainer.style.display = 'block';
@@ -851,12 +870,6 @@ window.addEventListener('load', () => {
     });
 });
 
-let gameStarted = false;
-
 function startGame() {
-    if (gameStarted) {
-        return;
-    }
-    gameStarted = true;
     game = new Phaser.Game(config);
 }
