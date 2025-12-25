@@ -77,7 +77,7 @@ const AGES = {
         width: 32,
         height: 40,
         speed: 100,
-        jump: -250,
+        jump: -500,
         name: 'ELDER',
         index: 2
     }
@@ -115,7 +115,7 @@ function create() {
     // 2. Create Player
     // Use currentAge to persist state between levels
     const initialStats = AGES[currentAge];
-    player = this.add.rectangle(100, 450, initialStats.width, initialStats.height, initialStats.color);
+    player = this.add.rectangle(50, 450, initialStats.width, initialStats.height, initialStats.color);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
@@ -180,60 +180,44 @@ function createLevel(scene, level) {
     }
 }
 
-// LEVEL 1: Age-Switching Tutorial - Requires all three ages
+// LEVEL 1: Redesigned based on user image
 function buildLevel1(scene) {
     // Floor
     let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Left wall
+    // Wall on the extreme left
     let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Section 1: High ledge (ADULT ONLY - requires high jump -600)
-    // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
-    let ledge1 = scene.add.rectangle(150, 480, 100, 220, 0x555555);
-    scene.physics.add.existing(ledge1, true);
-    obstacles.add(ledge1);
+    // Tall pillar with a gap for the child (22px high)
+    // Floor top is at y=560.
+    let pillarBase = scene.add.rectangle(100, 550, 40, 20, 0x555555);
+    scene.physics.add.existing(pillarBase, true);
+    obstacles.add(pillarBase);
 
-    // Ceiling above ledge to prevent child from bouncing over
-    let ceiling1 = scene.add.rectangle(150, 320, 100, 100, 0x555555);
-    scene.physics.add.existing(ceiling1, true);
-    obstacles.add(ceiling1);
+    // Gap of 22px above the base. Base top is at 540. Pillar bottom is at 518.
+    let pillarTop = scene.add.rectangle(100, 268, 40, 500, 0x555555);
+    scene.physics.add.existing(pillarTop, true);
+    obstacles.add(pillarTop);
 
-    // Section 2: Tight tunnel (CHILD ONLY - 25px gap, child is 20px)
-    // Tunnel at comfortable height for child to reach from ledge
-    // Floor at 390, height 20 -> top at 380
-    // Ceiling should have bottom at 380-25=355, so center at 355-10=345
-    let tunnelFloor = scene.add.rectangle(350, 390, 200, 20, 0x555555);
-    scene.physics.add.existing(tunnelFloor, true);
-    obstacles.add(tunnelFloor);
+    // Three ascending ghost platforms
+    let plat1 = scene.add.rectangle(250, 400, 100, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(plat1, true);
+    ghostPlatforms.add(plat1);
 
-    let tunnelCeiling = scene.add.rectangle(350, 345, 200, 20, 0x555555);
-    scene.physics.add.existing(tunnelCeiling, true);
-    obstacles.add(tunnelCeiling);
+    let plat2 = scene.add.rectangle(400, 350, 100, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(plat2, true);
+    ghostPlatforms.add(plat2);
 
-    // Section 3: Ghost platform gap (ELDER ONLY)
-    let platformBefore = scene.add.rectangle(500, 520, 60, 20, 0x555555);
-    scene.physics.add.existing(platformBefore, true);
-    obstacles.add(platformBefore);
+    let plat3 = scene.add.rectangle(550, 300, 100, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(plat3, true);
+    ghostPlatforms.add(plat3);
 
-    // Ghost platforms across gap
-    let gp1 = scene.add.rectangle(580, 520, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp1, true);
-    ghostPlatforms.add(gp1);
-
-    let gp2 = scene.add.rectangle(650, 520, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp2, true);
-    ghostPlatforms.add(gp2);
-
-    let platformAfter = scene.add.rectangle(720, 520, 60, 20, 0x555555);
-    scene.physics.add.existing(platformAfter, true);
-    obstacles.add(platformAfter);
-
-    finishZone = scene.add.rectangle(760, 480, 40, 40, 0x00ff00);
+    // Finish zone
+    finishZone = scene.add.rectangle(700, 250, 50, 50, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
 
