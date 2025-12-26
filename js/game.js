@@ -280,135 +280,108 @@ function buildLevel2(scene) {
     scene.physics.add.existing(finishZone, true);
 }
 
-// LEVEL 3: The Labyrinth - Multiple tunnels and age switches
+// LEVEL 3: The Gauntlet - A test of all forms
 function buildLevel3(scene) {
+    // Floor
     let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Adult stairs to reach upper area
-    let s1 = scene.add.rectangle(100, 480, 80, 20, 0x555555);
-    scene.physics.add.existing(s1, true);
-    obstacles.add(s1);
-
-    let s2 = scene.add.rectangle(200, 380, 80, 20, 0x555555);
-    scene.physics.add.existing(s2, true);
-    obstacles.add(s2);
-
-    let s3 = scene.add.rectangle(300, 280, 80, 20, 0x555555);
-    scene.physics.add.existing(s3, true);
-    obstacles.add(s3);
-
-    // Child-only tight tunnel (22px gap, child is 20px tall)
-    let tFloor1 = scene.add.rectangle(500, 285, 200, 20, 0x555555);
-    scene.physics.add.existing(tFloor1, true);
-    obstacles.add(tFloor1);
-
-    let tCeil1 = scene.add.rectangle(500, 243, 200, 20, 0x555555);
-    scene.physics.add.existing(tCeil1, true);
-    obstacles.add(tCeil1);
-
-    // Wall after tunnel to force drop
-    let wall1 = scene.add.rectangle(610, 380, 20, 210, 0x555555);
+    // Part 1: Child Tunnel
+    // Wall with a small gap at the bottom.
+    let wall1 = scene.add.rectangle(200, 450, 40, 220, 0x555555);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
+    // Create the gap by placing a ceiling object. Floor top is 560.
+    let tunnelCeiling = scene.add.rectangle(200, 560 - 20 - CHILD_TUNNEL_GAP, 40, 20, 0x555555);
+    scene.physics.add.existing(tunnelCeiling, true);
+    obstacles.add(tunnelCeiling);
 
-    // Platform below tunnel exit
-    let p1 = scene.add.rectangle(670, 480, 80, 20, 0x555555);
-    scene.physics.add.existing(p1, true);
-    obstacles.add(p1);
 
-    // Elder-only ghost platforms to cross final gap
-    let gp1 = scene.add.rectangle(680, 420, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp1, true);
-    ghostPlatforms.add(gp1);
+    // Part 2: Adult Jumps
+    // A platform after the tunnel.
+    let plat1 = scene.add.rectangle(350, 500, 100, 20, 0x555555);
+    scene.physics.add.existing(plat1, true);
+    obstacles.add(plat1);
 
-    let gp2 = scene.add.rectangle(730, 380, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp2, true);
-    ghostPlatforms.add(gp2);
+    // Higher platform requiring a good adult jump.
+    let plat2 = scene.add.rectangle(500, 400, 100, 20, 0x555555);
+    scene.physics.add.existing(plat2, true);
+    obstacles.add(plat2);
 
-    // Final platform
-    let finalP = scene.add.rectangle(770, 360, 60, 20, 0x555555);
-    scene.physics.add.existing(finalP, true);
-    obstacles.add(finalP);
+    // Highest platform in this section.
+    let plat3 = scene.add.rectangle(350, 300, 100, 20, 0x555555);
+    scene.physics.add.existing(plat3, true);
+    obstacles.add(plat3);
 
-    // Walls to prevent shortcuts
-    let wall2 = scene.add.rectangle(390, 380, 20, 240, 0x555555);
-    scene.physics.add.existing(wall2, true);
-    obstacles.add(wall2);
 
-    let wall3 = scene.add.rectangle(640, 520, 20, 140, 0x555555);
-    scene.physics.add.existing(wall3, true);
-    obstacles.add(wall3);
+    // Part 3: Elder Ghost Bridge
+    // A gap that requires the Elder to cross.
+    let ghost1 = scene.add.rectangle(500, 300, 80, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(ghost1, true);
+    ghostPlatforms.add(ghost1);
 
-    finishZone = scene.add.rectangle(770, 320, 40, 40, 0x00ff00);
-    scene.physics.add.existing(finishZone, true);
-}
+    let ghost2 = scene.add.rectangle(650, 300, 80, 20, 0xffffff).setAlpha(0.1);
+    scene.physics.add.existing(ghost2, true);
+    ghostPlatforms.add(ghost2);
 
-// LEVEL 4: Ghost Maze - Complex Elder navigation with obstacles
-function buildLevel4(scene) {
-    let startPlat = scene.add.rectangle(100, 540, 160, 40, 0x654321);
-    scene.physics.add.existing(startPlat, true);
-    obstacles.add(startPlat);
-
-    // First set of ghost platforms (Elder must navigate)
-    let gp1 = scene.add.rectangle(220, 540, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp1, true);
-    ghostPlatforms.add(gp1);
-
-    let gp2 = scene.add.rectangle(300, 540, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp2, true);
-    ghostPlatforms.add(gp2);
-
-    // Solid platform mid-way
-    let midPlat = scene.add.rectangle(380, 540, 60, 20, 0x555555);
-    scene.physics.add.existing(midPlat, true);
-    obstacles.add(midPlat);
-
-    // Child-only tunnel shortcut bypass (22px gap)
-    // Floor at 485, height 20 -> top at 475
-    // Ceiling should have bottom at 475-22=453, so center at 453-10=443
-    let tunnelF = scene.add.rectangle(380, 485, 60, 20, 0x555555);
-    scene.physics.add.existing(tunnelF, true);
-    obstacles.add(tunnelF);
-
-    let tunnelC = scene.add.rectangle(380, 443, 60, 20, 0x555555);
-    scene.physics.add.existing(tunnelC, true);
-    obstacles.add(tunnelC);
-
-    // More ghost platforms after tunnel (Elder path)
-    let gp3 = scene.add.rectangle(460, 480, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp3, true);
-    ghostPlatforms.add(gp3);
-
-    let gp4 = scene.add.rectangle(540, 440, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp4, true);
-    ghostPlatforms.add(gp4);
-
-    let gp5 = scene.add.rectangle(620, 400, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp5, true);
-    ghostPlatforms.add(gp5);
-
-    // Adult jump required to reach final platform
-    let preFinal = scene.add.rectangle(680, 400, 60, 20, 0x555555);
-    scene.physics.add.existing(preFinal, true);
-    obstacles.add(preFinal);
-
-    // High final platform (Adult jump needed)
-    let finalPlat = scene.add.rectangle(750, 280, 80, 20, 0x555555);
+    // Final platform with the finish zone.
+    let finalPlat = scene.add.rectangle(750, 280, 100, 40, 0x555555);
     scene.physics.add.existing(finalPlat, true);
     obstacles.add(finalPlat);
 
-    // Walls to block shortcuts
-    let wall1 = scene.add.rectangle(450, 520, 20, 140, 0x555555);
+    finishZone = scene.add.rectangle(750, 240, 40, 40, 0x00ff00);
+    scene.physics.add.existing(finishZone, true);
+}
+
+// LEVEL 4: The Choice - A puzzle of paths
+function buildLevel4(scene) {
+    // Floor
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    scene.physics.add.existing(floor, true);
+    obstacles.add(floor);
+
+    // Starting platform.
+    let startPlat = scene.add.rectangle(100, 500, 150, 20, 0x555555);
+    scene.physics.add.existing(startPlat, true);
+    obstacles.add(startPlat);
+
+    // The split point.
+    let wall1 = scene.add.rectangle(250, 400, 40, 200, 0x555555);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    let wall2 = scene.add.rectangle(600, 480, 20, 200, 0x555555);
-    scene.physics.add.existing(wall2, true);
-    obstacles.add(wall2);
+    // Path 1: Child's Shortcut
+    // A low tunnel that leads directly to the end.
+    let tunnelF = scene.add.rectangle(350, 505, 150, 20, 0x555555);
+    scene.physics.add.existing(tunnelF, true);
+    obstacles.add(tunnelF);
+    let tunnelC = scene.add.rectangle(350, 505 - CHILD_TUNNEL_GAP, 150, 20, 0x555555);
+    scene.physics.add.existing(tunnelC, true);
+    obstacles.add(tunnelC);
 
-    finishZone = scene.add.rectangle(760, 240, 40, 40, 0x00ff00);
+    // Path 2: Adult's Gauntlet
+    // A series of platforms that are too high for the Child.
+    let plat1 = scene.add.rectangle(350, 400, 100, 20, 0x555555);
+    scene.physics.add.existing(plat1, true);
+    obstacles.add(plat1);
+
+    let plat2 = scene.add.rectangle(500, 300, 100, 20, 0x555555);
+    scene.physics.add.existing(plat2, true);
+    obstacles.add(plat2);
+
+    // A drop-down to the final section.
+    let plat3 = scene.add.rectangle(650, 400, 100, 20, 0x555555);
+    scene.physics.add.existing(plat3, true);
+    obstacles.add(plat3);
+
+
+    // Both paths converge here.
+    let finalPlat = scene.add.rectangle(750, 500, 100, 20, 0x555555);
+    scene.physics.add.existing(finalPlat, true);
+    obstacles.add(finalPlat);
+
+    finishZone = scene.add.rectangle(750, 450, 40, 40, 0x00ff00);
     scene.physics.add.existing(finishZone, true);
 }
 function buildBossLevel(scene) {
@@ -837,6 +810,19 @@ window.addEventListener('load', () => {
     const instructionsScreen = document.getElementById('instructions-screen');
     const gameContainer = document.getElementById('game-container');
 
+    // Validate all required elements exist
+    const requiredElements = {
+        playButton, instructionsButton, backButton,
+        menuOverlay, mainMenu, instructionsScreen, gameContainer
+    };
+
+    for (const [name, element] of Object.entries(requiredElements)) {
+        if (!element) {
+            console.error(`Required element missing: ${name}`);
+            return;
+        }
+    }
+
     playButton.addEventListener('click', () => {
         menuOverlay.style.display = 'none';
         gameContainer.style.display = 'block';
@@ -855,5 +841,10 @@ window.addEventListener('load', () => {
 });
 
 function startGame() {
+    // Prevent creating multiple game instances
+    if (game) {
+        console.warn('Game already initialized');
+        return;
+    }
     game = new Phaser.Game(config);
 }
