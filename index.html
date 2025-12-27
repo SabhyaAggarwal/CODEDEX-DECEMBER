@@ -8,16 +8,16 @@
     <style>
         body {
             margin: 0;
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 50%, #0d001a 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
+            color: #00ffff;
             font-family: 'Courier New', Courier, monospace;
         }
         #game-container {
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.3);
             display: none; /* Hide game initially */
         }
         .menu-overlay {
@@ -26,24 +26,39 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background: radial-gradient(ellipse at center, rgba(26, 0, 51, 0.95) 0%, rgba(10, 0, 21, 0.98) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
         }
+        h1 {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            font-size: 48px;
+            margin-bottom: 40px;
+            letter-spacing: 4px;
+        }
         .menu-button {
-            background-color: #555;
-            color: white;
-            border: 2px solid #fff;
+            background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+            color: #00ffff;
+            border: 2px solid #00ffff;
             padding: 15px 30px;
             font-size: 24px;
             cursor: pointer;
             margin: 10px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
         .menu-button:hover {
-            background-color: #777;
+            background: linear-gradient(135deg, #330066 0%, #660099 100%);
+            border-color: #ff00ff;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5);
+            transform: scale(1.05);
         }
         #instructions-screen {
             display: none; /* Hidden by default */
@@ -52,6 +67,8 @@
         }
         #instructions-screen h2 {
             margin-top: 0;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
         }
         #instructions-screen ul {
             list-style: none;
@@ -60,6 +77,14 @@
         }
         #instructions-screen li {
             margin-bottom: 10px;
+            color: #00ffff;
+        }
+        #instructions-screen strong {
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+        #instructions-screen p {
+            color: #00ffff;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>

@@ -3,6 +3,7 @@ const config = {
     width: 800,
     height: 600,
     parent: 'game-container',
+    backgroundColor: '#0a0015',
     physics: {
         default: 'arcade',
         arcade: {
@@ -52,10 +53,10 @@ const TURRET_MAX_Y = 400; // Match boss range so no safe spots
 // Level design constants
 const CHILD_TUNNEL_GAP = 22; // Child is 20px tall, needs small gap
 
-// Age Statistics
+// Age Statistics - Cyberpunk Theme
 const AGES = {
     child: {
-        color: 0x00ff00,
+        color: 0x00ffff,  // Cyan
         width: 20,
         height: 20,
         speed: 300,
@@ -64,7 +65,7 @@ const AGES = {
         index: 0
     },
     adult: {
-        color: 0x0000ff,
+        color: 0xff00ff,  // Magenta/Pink
         width: 32,
         height: 48,
         speed: 200,
@@ -73,7 +74,7 @@ const AGES = {
         index: 1
     },
     elder: {
-        color: 0x808080,
+        color: 0x9d00ff,  // Purple
         width: 32,
         height: 40,
         speed: 100,
@@ -182,235 +183,235 @@ function createLevel(scene, level) {
 
 // LEVEL 1: Redesigned based on user image
 function buildLevel1(scene) {
-    // Floor
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    // Floor - Dark purple
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Wall on the extreme left
-    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
+    // Wall on the extreme left - Dark cyan
+    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x003344);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Tall pillar with a gap for the child (22px high)
+    // Tall pillar with a gap for the child (22px high) - Purple
     // Floor top is at y=560.
-    let pillarBase = scene.add.rectangle(100, 550, 40, 20, 0x555555);
+    let pillarBase = scene.add.rectangle(100, 550, 40, 20, 0x4d0099);
     scene.physics.add.existing(pillarBase, true);
     obstacles.add(pillarBase);
 
     // Gap of 22px above the base. Base top is at 540. Pillar bottom is at 518.
-    let pillarTop = scene.add.rectangle(100, 268, 40, 500, 0x555555);
+    let pillarTop = scene.add.rectangle(100, 268, 40, 500, 0x4d0099);
     scene.physics.add.existing(pillarTop, true);
     obstacles.add(pillarTop);
 
-    // Three ascending ghost platforms
-    let plat1 = scene.add.rectangle(250, 400, 100, 20, 0xffffff).setAlpha(0.1);
+    // Three ascending ghost platforms - Cyan glow
+    let plat1 = scene.add.rectangle(250, 400, 100, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(plat1, true);
     ghostPlatforms.add(plat1);
 
-    let plat2 = scene.add.rectangle(400, 350, 100, 20, 0xffffff).setAlpha(0.1);
+    let plat2 = scene.add.rectangle(400, 350, 100, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(plat2, true);
     ghostPlatforms.add(plat2);
 
-    let plat3 = scene.add.rectangle(550, 300, 100, 20, 0xffffff).setAlpha(0.1);
+    let plat3 = scene.add.rectangle(550, 300, 100, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(plat3, true);
     ghostPlatforms.add(plat3);
 
-    // Finish zone
-    finishZone = scene.add.rectangle(700, 250, 50, 50, 0x00ff00);
+    // Finish zone - Bright pink
+    finishZone = scene.add.rectangle(700, 250, 50, 50, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 
 // LEVEL 2: Vertical Tower - Requires Adult jumps, Child tunnels, Elder ghosts
 function buildLevel2(scene) {
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Stage 1: Adult jump to first platform (130px jump)
-    let p1 = scene.add.rectangle(100, 450, 120, 20, 0x555555);
+    // Stage 1: Adult jump to first platform (130px jump) - Magenta
+    let p1 = scene.add.rectangle(100, 450, 120, 20, 0x660066);
     scene.physics.add.existing(p1, true);
     obstacles.add(p1);
 
-    // Tall wall to prevent shortcuts
-    let wall1 = scene.add.rectangle(180, 350, 20, 280, 0x555555);
+    // Tall wall to prevent shortcuts - Dark purple
+    let wall1 = scene.add.rectangle(180, 350, 20, 280, 0x330066);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Stage 2: Child-only tunnel to reach next area (22px gap)
+    // Stage 2: Child-only tunnel to reach next area (22px gap) - Cyan tint
     // Floor at 465, height 20 -> top at 455
     // Ceiling should have bottom at 455-22=433, so center at 433-10=423
-    let tunnelFloor1 = scene.add.rectangle(280, 465, 120, 20, 0x555555);
+    let tunnelFloor1 = scene.add.rectangle(280, 465, 120, 20, 0x004466);
     scene.physics.add.existing(tunnelFloor1, true);
     obstacles.add(tunnelFloor1);
 
-    let tunnelCeil1 = scene.add.rectangle(280, 423, 120, 20, 0x555555);
+    let tunnelCeil1 = scene.add.rectangle(280, 423, 120, 20, 0x004466);
     scene.physics.add.existing(tunnelCeil1, true);
     obstacles.add(tunnelCeil1);
 
-    // Stage 3: Adult jump to higher platform (150px jump)
-    let p2 = scene.add.rectangle(420, 340, 100, 20, 0x555555);
+    // Stage 3: Adult jump to higher platform (150px jump) - Magenta
+    let p2 = scene.add.rectangle(420, 340, 100, 20, 0x660066);
     scene.physics.add.existing(p2, true);
     obstacles.add(p2);
 
-    // Wall to prevent shortcuts
-    let wall2 = scene.add.rectangle(480, 250, 20, 200, 0x555555);
+    // Wall to prevent shortcuts - Dark purple
+    let wall2 = scene.add.rectangle(480, 250, 20, 200, 0x330066);
     scene.physics.add.existing(wall2, true);
     obstacles.add(wall2);
 
-    // Stage 4: Ghost platforms (Elder only)
-    let gp1 = scene.add.rectangle(540, 340, 60, 20, 0xffffff).setAlpha(0.1);
+    // Stage 4: Ghost platforms (Elder only) - Cyan glow
+    let gp1 = scene.add.rectangle(540, 340, 60, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(gp1, true);
     ghostPlatforms.add(gp1);
 
-    let gp2 = scene.add.rectangle(620, 280, 60, 20, 0xffffff).setAlpha(0.1);
+    let gp2 = scene.add.rectangle(620, 280, 60, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(gp2, true);
     ghostPlatforms.add(gp2);
 
-    let gp3 = scene.add.rectangle(700, 220, 60, 20, 0xffffff).setAlpha(0.1);
+    let gp3 = scene.add.rectangle(700, 220, 60, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(gp3, true);
     ghostPlatforms.add(gp3);
 
-    // Final platform
-    let finalPlat = scene.add.rectangle(750, 200, 80, 20, 0x555555);
+    // Final platform - Pink
+    let finalPlat = scene.add.rectangle(750, 200, 80, 20, 0xff0099);
     scene.physics.add.existing(finalPlat, true);
     obstacles.add(finalPlat);
 
-    finishZone = scene.add.rectangle(770, 160, 40, 40, 0x00ff00);
+    finishZone = scene.add.rectangle(770, 160, 40, 40, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 
 // LEVEL 3: The Gauntlet - A test of all forms
 function buildLevel3(scene) {
     // Floor
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
     // Part 1: Child Tunnel
     // Wall with a small gap at the bottom.
-    let wall1 = scene.add.rectangle(200, 450, 40, 220, 0x555555);
+    let wall1 = scene.add.rectangle(200, 450, 40, 220, 0x660066);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
     // Create the gap by placing a ceiling object. Floor top is 560.
-    let tunnelCeiling = scene.add.rectangle(200, 560 - 20 - CHILD_TUNNEL_GAP, 40, 20, 0x555555);
+    let tunnelCeiling = scene.add.rectangle(200, 560 - 20 - CHILD_TUNNEL_GAP, 40, 20, 0x660066);
     scene.physics.add.existing(tunnelCeiling, true);
     obstacles.add(tunnelCeiling);
 
 
     // Part 2: Adult Jumps
     // A platform after the tunnel.
-    let plat1 = scene.add.rectangle(350, 500, 100, 20, 0x555555);
+    let plat1 = scene.add.rectangle(350, 500, 100, 20, 0x660066);
     scene.physics.add.existing(plat1, true);
     obstacles.add(plat1);
 
     // Higher platform requiring a good adult jump.
-    let plat2 = scene.add.rectangle(500, 400, 100, 20, 0x555555);
+    let plat2 = scene.add.rectangle(500, 400, 100, 20, 0x660066);
     scene.physics.add.existing(plat2, true);
     obstacles.add(plat2);
 
     // Highest platform in this section.
-    let plat3 = scene.add.rectangle(350, 300, 100, 20, 0x555555);
+    let plat3 = scene.add.rectangle(350, 300, 100, 20, 0x660066);
     scene.physics.add.existing(plat3, true);
     obstacles.add(plat3);
 
 
     // Part 3: Elder Ghost Bridge
     // A gap that requires the Elder to cross.
-    let ghost1 = scene.add.rectangle(500, 300, 80, 20, 0xffffff).setAlpha(0.1);
+    let ghost1 = scene.add.rectangle(500, 300, 80, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(ghost1, true);
     ghostPlatforms.add(ghost1);
 
-    let ghost2 = scene.add.rectangle(650, 300, 80, 20, 0xffffff).setAlpha(0.1);
+    let ghost2 = scene.add.rectangle(650, 300, 80, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(ghost2, true);
     ghostPlatforms.add(ghost2);
 
     // Final platform with the finish zone.
-    let finalPlat = scene.add.rectangle(750, 280, 100, 40, 0x555555);
+    let finalPlat = scene.add.rectangle(750, 280, 100, 40, 0x660066);
     scene.physics.add.existing(finalPlat, true);
     obstacles.add(finalPlat);
 
-    finishZone = scene.add.rectangle(750, 240, 40, 40, 0x00ff00);
+    finishZone = scene.add.rectangle(750, 240, 40, 40, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 
 // LEVEL 4: The Choice - A puzzle of paths
 function buildLevel4(scene) {
     // Floor
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
     // Starting platform.
-    let startPlat = scene.add.rectangle(100, 500, 150, 20, 0x555555);
+    let startPlat = scene.add.rectangle(100, 500, 150, 20, 0x660066);
     scene.physics.add.existing(startPlat, true);
     obstacles.add(startPlat);
 
     // The split point.
-    let wall1 = scene.add.rectangle(250, 400, 40, 200, 0x555555);
+    let wall1 = scene.add.rectangle(250, 400, 40, 200, 0x660066);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
     // Path 1: Child's Shortcut
     // A low tunnel that leads directly to the end.
-    let tunnelF = scene.add.rectangle(350, 505, 150, 20, 0x555555);
+    let tunnelF = scene.add.rectangle(350, 505, 150, 20, 0x660066);
     scene.physics.add.existing(tunnelF, true);
     obstacles.add(tunnelF);
-    let tunnelC = scene.add.rectangle(350, 505 - CHILD_TUNNEL_GAP, 150, 20, 0x555555);
+    let tunnelC = scene.add.rectangle(350, 505 - CHILD_TUNNEL_GAP, 150, 20, 0x660066);
     scene.physics.add.existing(tunnelC, true);
     obstacles.add(tunnelC);
 
     // Path 2: Adult's Gauntlet
     // A series of platforms that are too high for the Child.
-    let plat1 = scene.add.rectangle(350, 400, 100, 20, 0x555555);
+    let plat1 = scene.add.rectangle(350, 400, 100, 20, 0x660066);
     scene.physics.add.existing(plat1, true);
     obstacles.add(plat1);
 
-    let plat2 = scene.add.rectangle(500, 300, 100, 20, 0x555555);
+    let plat2 = scene.add.rectangle(500, 300, 100, 20, 0x660066);
     scene.physics.add.existing(plat2, true);
     obstacles.add(plat2);
 
     // A drop-down to the final section.
-    let plat3 = scene.add.rectangle(650, 400, 100, 20, 0x555555);
+    let plat3 = scene.add.rectangle(650, 400, 100, 20, 0x660066);
     scene.physics.add.existing(plat3, true);
     obstacles.add(plat3);
 
 
     // Both paths converge here.
-    let finalPlat = scene.add.rectangle(750, 500, 100, 20, 0x555555);
+    let finalPlat = scene.add.rectangle(750, 500, 100, 20, 0x660066);
     scene.physics.add.existing(finalPlat, true);
     obstacles.add(finalPlat);
 
-    finishZone = scene.add.rectangle(750, 450, 40, 40, 0x00ff00);
+    finishZone = scene.add.rectangle(750, 450, 40, 40, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 function buildBossLevel(scene) {
     // Boss Arena
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Boss
-    boss = scene.add.rectangle(700, 500, 80, 120, 0xff0000);
+    // Boss - Hot pink/magenta
+    boss = scene.add.rectangle(700, 500, 80, 120, 0xff0099);
     scene.physics.add.existing(boss);
     boss.body.setImmovable(true);
     boss.body.allowGravity = false; // Fix: Prevent falling
 
-    // Turret (Start invisible?)
-    turret = scene.add.rectangle(100, 500, 50, 50, 0xffff00);
+    // Turret - Cyan
+    turret = scene.add.rectangle(100, 500, 50, 50, 0x00ffff);
     scene.physics.add.existing(turret);
     turret.body.allowGravity = false; // Fix: Prevent falling
 
     scene.physics.add.collider(player, boss, hitBossBody, null, scene);
 
-    scene.add.text(400, 100, 'BOSS FIGHT!', { fontSize: '32px', fill: '#f00' }).setOrigin(0.5);
+    scene.add.text(400, 100, 'BOSS FIGHT!', { fontSize: '32px', fill: '#ff00ff' }).setOrigin(0.5);
     
     // Boss health bar
-    scene.add.text(400, 30, 'BOSS HEALTH:', { fontSize: '20px', fill: '#fff' }).setOrigin(0.5);
+    scene.add.text(400, 30, 'BOSS HEALTH:', { fontSize: '20px', fill: '#00ffff' }).setOrigin(0.5);
     // Background bar
-    scene.add.rectangle(400, 55, 304, 24, 0x000000).setOrigin(0.5);
+    scene.add.rectangle(400, 55, 304, 24, 0x0a0015).setOrigin(0.5);
     // Health bar (will be updated in updateBossLevel)
-    bossHealthBar = scene.add.rectangle(400, 55, 300, 20, 0xff0000).setOrigin(0.5);
+    bossHealthBar = scene.add.rectangle(400, 55, 300, 20, 0xff0099).setOrigin(0.5);
 }
 
 function update() {
@@ -491,13 +492,13 @@ function updateBossLevel() {
     if (bossHealthBar && bossHealthBar.active) {
         const healthPercent = bossHealth / bossMaxHealth;
         bossHealthBar.width = 300 * healthPercent;
-        // Update color based on health
+        // Update color based on health - Cyberpunk colors
         if (healthPercent > 0.6) {
-            bossHealthBar.fillColor = 0x00ff00; // Green
+            bossHealthBar.fillColor = 0x00ffff; // Cyan
         } else if (healthPercent > 0.3) {
-            bossHealthBar.fillColor = 0xffff00; // Yellow
+            bossHealthBar.fillColor = 0xff00ff; // Magenta
         } else {
-            bossHealthBar.fillColor = 0xff0000; // Red
+            bossHealthBar.fillColor = 0xff0080; // Hot pink
         }
     }
 
@@ -520,11 +521,11 @@ function updateBossLevel() {
     // range: 300-400.
     boss.y = 350 + Math.sin(game.getTime() / 500) * 50;
 
-    // Shoot at player (only if boss exists)
+    // Shoot at player (only if boss exists) - Pink bullets
     bossShootTimer++;
     if (bossShootTimer > 100) {
         bossShootTimer = 0;
-        let bullet = currentScene.add.rectangle(boss.x, boss.y, 20, 20, 0xff0000);
+        let bullet = currentScene.add.rectangle(boss.x, boss.y, 20, 20, 0xff0099);
         currentScene.physics.add.existing(bullet);
 
         // FORCE PHYSICS SETTINGS
@@ -585,7 +586,7 @@ function updateBossLevel() {
         if (cursors.space.isDown) {
             if (currentScene.time.now > turretShootCooldown) {
                 turretShootCooldown = currentScene.time.now + TURRET_FIRE_RATE;
-                let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0xffff00);
+                let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0x00ffff);
                 currentScene.physics.add.existing(bullet);
 
                 // FORCE PHYSICS SETTINGS
@@ -638,11 +639,11 @@ function damageBoss(boss, bullet) {
     bullet.destroy();
     bossHealth--;
 
-    // Boss is a Rectangle, no setTint. Use setFillStyle.
+    // Boss is a Rectangle, no setTint. Use setFillStyle - Flash cyan when hit
     boss.lastColor = boss.fillColor;
-    boss.setFillStyle(0xffaa00);
+    boss.setFillStyle(0x00ffff);
     currentScene.time.delayedCall(100, () => {
-        if (boss && boss.active) boss.setFillStyle(0xff0000); // Standard red
+        if (boss && boss.active) boss.setFillStyle(0xff0099); // Back to magenta
     });
 
     if (bossHealth <= 0) {
@@ -726,7 +727,7 @@ function switchAgeRequest(newAgeKey) {
     // Darken the current color: 0x888888 tint equivalent is basically half brightness
     // But easier to just set to grey for the pause duration
     player.lastColor = player.fillColor; // Save current color
-    player.setFillStyle(0x555555);
+    player.setFillStyle(0x660066);
 
     // Determine duration and icon
     const baseDelay = 500; // 0.5 seconds per step
@@ -791,7 +792,7 @@ function winGame(player, goal) {
         timerText.setText('YOU WON!');
         levelTimer.remove();
         player.body.setVelocity(0, 0);
-        currentScene.add.text(400, 300, 'GAME COMPLETE', { fontSize: '64px', fill: '#0f0' }).setOrigin(0.5);
+        currentScene.add.text(400, 300, 'GAME COMPLETE', { fontSize: '64px', fill: '#ff00ff' }).setOrigin(0.5);
     }
 }
 
