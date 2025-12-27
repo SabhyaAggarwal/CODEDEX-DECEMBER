@@ -61,6 +61,8 @@ let mobileControls = {
     fire: false
 };
 
+// Mobile breakpoint constant
+const MOBILE_BREAKPOINT = 768;
 
 // Turret movement constants
 const TURRET_MOVE_SPEED = 3;
@@ -865,7 +867,7 @@ window.addEventListener('load', () => {
         gameContainer.style.display = 'block';
         startGame();
         // Show mobile controls on mobile devices
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
             document.getElementById('mobile-controls').classList.add('active');
         }
     });
@@ -902,6 +904,21 @@ function setupMobileControls() {
     const btnAimDown = document.getElementById('btn-aim-down');
     const btnFire = document.getElementById('btn-fire');
     const bossControls = document.getElementById('boss-controls');
+    
+    // Check if all required mobile control elements exist
+    const mobileElements = {
+        btnLeft, btnRight, btnJump,
+        btnChild, btnAdult, btnElder,
+        btnTurret, btnAimUp, btnAimDown, btnFire,
+        bossControls
+    };
+    
+    for (const [name, element] of Object.entries(mobileElements)) {
+        if (!element) {
+            console.warn(`Mobile control element missing: ${name}`);
+            return; // Exit if any element is missing
+        }
+    }
     
     // Left button
     btnLeft.addEventListener('touchstart', (e) => {
@@ -1009,7 +1026,7 @@ function setupMobileControls() {
     // Show/hide boss controls based on level
     // This will be called from the game when entering/leaving boss level
     window.showBossControls = function(show) {
-        if (show && window.innerWidth <= 768) {
+        if (show && window.innerWidth <= MOBILE_BREAKPOINT) {
             bossControls.classList.add('active');
         } else {
             bossControls.classList.remove('active');
