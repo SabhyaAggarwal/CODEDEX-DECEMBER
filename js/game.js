@@ -4,6 +4,10 @@ const config = {
     height: 600,
     parent: 'game-container',
     backgroundColor: '#0a0015',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -44,6 +48,24 @@ let isSwitching = false;
 let transitionText;
 let transitionIcon;
 let currentScene;
+
+// Mobile control states
+let mobileControls = {
+    left: false,
+    right: false,
+    jump: false,
+    ageSwitch: null,
+    turretToggle: false,
+    aimUp: false,
+    aimDown: false,
+    fire: false
+};
+
+// Mobile breakpoint constant
+const MOBILE_BREAKPOINT = 768;
+
+// Track if mobile controls have been initialized
+let mobileControlsInitialized = false;
 
 // Turret movement constants
 const TURRET_MOVE_SPEED = 3;
@@ -412,6 +434,11 @@ function buildBossLevel(scene) {
     scene.add.rectangle(400, 55, 304, 24, 0x0a0015).setOrigin(0.5);
     // Health bar (will be updated in updateBossLevel)
     bossHealthBar = scene.add.rectangle(400, 55, 300, 20, 0xff0099).setOrigin(0.5);
+    
+    // Show boss controls on mobile
+    if (typeof window.showBossControls === 'function') {
+        window.showBossControls(true);
+    }
 }
 
 function update() {
@@ -420,23 +447,32 @@ function update() {
 
     // Movement (disabled when on turret)
     if (!onTurret) {
-        if (cursors.left.isDown) {
+        if (cursors.left.isDown || mobileControls.left) {
             player.body.setVelocityX(-AGES[currentAge].speed);
-        } else if (cursors.right.isDown) {
+        } else if (cursors.right.isDown || mobileControls.right) {
             player.body.setVelocityX(AGES[currentAge].speed);
         } else {
             player.body.setVelocityX(0);
         }
 
-        if (cursors.up.isDown && player.body.touching.down) {
+        if ((cursors.up.isDown || mobileControls.jump) && player.body.touching.down) {
             player.body.setVelocityY(AGES[currentAge].jump);
         }
     }
 
     // Age Switching
-    if (Phaser.Input.Keyboard.JustDown(keys.one)) switchAgeRequest('child');
-    if (Phaser.Input.Keyboard.JustDown(keys.two)) switchAgeRequest('adult');
-    if (Phaser.Input.Keyboard.JustDown(keys.three)) switchAgeRequest('elder');
+    if (Phaser.Input.Keyboard.JustDown(keys.one) || mobileControls.ageSwitch === 'child') {
+        switchAgeRequest('child');
+        mobileControls.ageSwitch = null;
+    }
+    if (Phaser.Input.Keyboard.JustDown(keys.two) || mobileControls.ageSwitch === 'adult') {
+        switchAgeRequest('adult');
+        mobileControls.ageSwitch = null;
+    }
+    if (Phaser.Input.Keyboard.JustDown(keys.three) || mobileControls.ageSwitch === 'elder') {
+        switchAgeRequest('elder');
+        mobileControls.ageSwitch = null;
+    }
 
     // Ghost Platform Visibility
     ghostPlatforms.children.iterate((plat) => {
@@ -547,7 +583,8 @@ function updateBossLevel() {
     // Fix: If onTurret, we don't need overlap to exit.
     // Logic: (Check overlap AND Key) OR (OnTurret AND Key)
     // Simplify: if KeyDown X -> Check state.
-    if (Phaser.Input.Keyboard.JustDown(keys.x)) {
+    if (Phaser.Input.Keyboard.JustDown(keys.x) || mobileControls.turretToggle) {
+        mobileControls.turretToggle = false;
         if (onTurret) {
             // Exit logic
             onTurret = false;
@@ -576,14 +613,14 @@ function updateBossLevel() {
         player.body.updateFromGameObject();
         
         // Turret vertical movement with arrow keys
-        if (cursors.up.isDown) {
+        if (cursors.up.isDown || mobileControls.aimUp) {
             moveTurretWithPlayer(-TURRET_MOVE_SPEED);
-        } else if (cursors.down.isDown) {
+        } else if (cursors.down.isDown || mobileControls.aimDown) {
             moveTurretWithPlayer(TURRET_MOVE_SPEED);
         }
         
         // Shooting logic
-        if (cursors.space.isDown) {
+        if (cursors.space.isDown || mobileControls.fire) {
             if (currentScene.time.now > turretShootCooldown) {
                 turretShootCooldown = currentScene.time.now + TURRET_FIRE_RATE;
                 let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0x00ffff);
@@ -776,6 +813,10 @@ function onSecondValues() {
 }
 
 function failLevel() {
+    // Hide boss controls on mobile when leaving boss level
+    if (currentLevel === 5 && typeof window.showBossControls === 'function') {
+        window.showBossControls(false);
+    }
     // restart scene
     currentScene.scene.restart();
 }
@@ -828,6 +869,15 @@ window.addEventListener('load', () => {
         menuOverlay.style.display = 'none';
         gameContainer.style.display = 'block';
         startGame();
+        // Show mobile controls on mobile devices
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
+            const mobileControlsEl = document.getElementById('mobile-controls');
+            if (mobileControlsEl) {
+                mobileControlsEl.classList.add('active');
+            } else {
+                console.error('Required element missing: mobile-controls');
+            }
+        }
     });
 
     instructionsButton.addEventListener('click', () => {
@@ -839,7 +889,173 @@ window.addEventListener('load', () => {
         instructionsScreen.style.display = 'none';
         mainMenu.style.display = 'block';
     });
+    
+    // Initialize mobile controls
+    setupMobileControls();
 });
+
+// Helper function to add both touch and mouse events for binary controls (press/release)
+function addBinaryControlEvents(element, controlProperty) {
+    // Touch events
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = true;
+    });
+    element.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+    element.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+    
+    // Mouse events for desktop testing
+    element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = true;
+    });
+    element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+}
+
+// Helper function to add events for age switch controls (single trigger)
+function addAgeSwitchEvents(element, ageValue) {
+    // Touch events
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = ageValue;
+    });
+    element.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+    element.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+    
+    // Mouse events for desktop testing
+    element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = ageValue;
+    });
+    element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+}
+
+// Helper function to add events for turret toggle control
+function addTurretToggleEvents(element) {
+    // Touch events
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = true;
+    });
+    element.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    element.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    
+    // Mouse events for desktop testing
+    element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = true;
+    });
+    element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+}
+
+// Mobile Controls Setup
+function setupMobileControls() {
+    // Prevent duplicate initialization
+    if (mobileControlsInitialized) {
+        console.warn('Mobile controls already initialized');
+        return;
+    }
+    
+    // Movement Controls
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnJump = document.getElementById('btn-jump');
+    
+    // Age Switch Controls
+    const btnChild = document.getElementById('btn-child');
+    const btnAdult = document.getElementById('btn-adult');
+    const btnElder = document.getElementById('btn-elder');
+    
+    // Boss Controls
+    const btnTurret = document.getElementById('btn-turret');
+    const btnAimUp = document.getElementById('btn-aim-up');
+    const btnAimDown = document.getElementById('btn-aim-down');
+    const btnFire = document.getElementById('btn-fire');
+    const bossControls = document.getElementById('boss-controls');
+    
+    // Check if all required mobile control elements exist
+    const mobileElements = {
+        btnLeft, btnRight, btnJump,
+        btnChild, btnAdult, btnElder,
+        btnTurret, btnAimUp, btnAimDown, btnFire,
+        bossControls
+    };
+    
+    for (const [name, element] of Object.entries(mobileElements)) {
+        if (!element) {
+            console.warn(`Mobile control element missing: ${name}`);
+            return; // Exit if any element is missing
+        }
+    }
+    
+    // Setup movement controls
+    addBinaryControlEvents(btnLeft, 'left');
+    addBinaryControlEvents(btnRight, 'right');
+    addBinaryControlEvents(btnJump, 'jump');
+    
+    // Setup age switch controls
+    addAgeSwitchEvents(btnChild, 'child');
+    addAgeSwitchEvents(btnAdult, 'adult');
+    addAgeSwitchEvents(btnElder, 'elder');
+    
+    // Setup boss controls
+    addTurretToggleEvents(btnTurret);
+    addBinaryControlEvents(btnAimUp, 'aimUp');
+    addBinaryControlEvents(btnAimDown, 'aimDown');
+    addBinaryControlEvents(btnFire, 'fire');
+    
+    // Mark as initialized
+    mobileControlsInitialized = true;
+    
+    // Show/hide boss controls based on level
+    // This will be called from the game when entering/leaving boss level
+    window.showBossControls = function(show) {
+        if (show && window.innerWidth <= MOBILE_BREAKPOINT) {
+            bossControls.classList.add('active');
+        } else {
+            bossControls.classList.remove('active');
+        }
+    };
+}
 
 function startGame() {
     // Prevent creating multiple game instances
