@@ -15,7 +15,8 @@
             height: 100vh;
             color: #00ffff;
             font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         #game-container {
             box-shadow: 0 0 40px rgba(255, 0, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.3);
@@ -67,10 +68,10 @@
             gap: 10px;
         }
         
-        /* Boss Controls - Top */
+        /* Boss Controls - Centered Above Bottom Controls */
         .boss-controls {
             position: absolute;
-            top: 80px;
+            bottom: 140px;
             left: 50%;
             transform: translateX(-50%);
             display: none;
@@ -249,28 +250,28 @@
     <div class="mobile-controls" id="mobile-controls">
         <!-- Movement Controls -->
         <div class="control-group movement-controls">
-            <button class="control-btn" id="btn-left">◄</button>
-            <button class="control-btn" id="btn-right">►</button>
+            <button class="control-btn" id="btn-left" aria-label="Move Left">◄</button>
+            <button class="control-btn" id="btn-right" aria-label="Move Right">►</button>
         </div>
         
         <!-- Jump Control -->
         <div class="control-group jump-control">
-            <button class="control-btn" id="btn-jump">▲</button>
+            <button class="control-btn" id="btn-jump" aria-label="Jump">▲</button>
         </div>
         
         <!-- Age Switch Controls -->
         <div class="control-group age-controls">
-            <button class="control-btn age-child" id="btn-child">1</button>
-            <button class="control-btn age-adult" id="btn-adult">2</button>
-            <button class="control-btn age-elder" id="btn-elder">3</button>
+            <button class="control-btn age-child" id="btn-child" aria-label="Switch to Child">1</button>
+            <button class="control-btn age-adult" id="btn-adult" aria-label="Switch to Adult">2</button>
+            <button class="control-btn age-elder" id="btn-elder" aria-label="Switch to Elder">3</button>
         </div>
         
         <!-- Boss Level Controls -->
         <div class="control-group boss-controls" id="boss-controls">
-            <button class="control-btn" id="btn-turret">X</button>
-            <button class="control-btn" id="btn-aim-up">▲ Aim</button>
-            <button class="control-btn" id="btn-aim-down">▼ Aim</button>
-            <button class="control-btn" id="btn-fire">Fire</button>
+            <button class="control-btn" id="btn-turret" aria-label="Enter or Exit Turret">X</button>
+            <button class="control-btn" id="btn-aim-up" aria-label="Aim Turret Up">▲ Aim</button>
+            <button class="control-btn" id="btn-aim-down" aria-label="Aim Turret Down">▼ Aim</button>
+            <button class="control-btn" id="btn-fire" aria-label="Fire Turret">Fire</button>
         </div>
     </div>
     
