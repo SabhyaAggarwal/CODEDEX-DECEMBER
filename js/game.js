@@ -950,6 +950,10 @@ function addAgeSwitchEvents(element, ageValue) {
         e.preventDefault();
         mobileControls.ageSwitch = null;
     });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
 }
 
 // Helper function to add events for turret toggle control
@@ -974,6 +978,10 @@ function addTurretToggleEvents(element) {
         mobileControls.turretToggle = true;
     });
     element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    element.addEventListener('mouseleave', (e) => {
         e.preventDefault();
         mobileControls.turretToggle = false;
     });
