@@ -600,6 +600,8 @@ function updateBossLevel() {
             // Re-enable gravity when exiting turret
             player.body.setAllowGravity(true);
             player.body.setVelocity(0, 0); // Clear any velocity
+            // Make player visible again when exiting turret
+            player.setVisible(true);
             infoText.setText('Age: ' + AGES[currentAge].name);
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
@@ -610,6 +612,8 @@ function updateBossLevel() {
             // Disable gravity while on turret
             player.body.setAllowGravity(false);
             player.body.setVelocity(0, 0); // Clear any velocity to prevent glitches
+            // Hide player while on turret to prevent visual glitching
+            player.setVisible(false);
             // Sync physics body
             player.body.updateFromGameObject();
             turret.body.updateFromGameObject();
