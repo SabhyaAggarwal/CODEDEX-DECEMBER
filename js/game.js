@@ -604,11 +604,9 @@ function updateBossLevel() {
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
-            // Store initial turret position to prevent unintended movement
-            const initialTurretY = turret.y;
             // Position player at turret location
             player.x = turret.x;
-            player.y = initialTurretY;
+            player.y = turret.y;
             // Disable gravity while on turret
             player.body.setAllowGravity(false);
             player.body.setVelocity(0, 0); // Clear any velocity to prevent glitches
