@@ -61,6 +61,10 @@ let mobileControls = {
     fire: false
 };
 
+// Track last turret toggle time to prevent rapid toggling
+let lastTurretToggleTime = 0;
+const TURRET_TOGGLE_COOLDOWN = 300; // ms between toggles
+
 // Mobile breakpoint constant
 const MOBILE_BREAKPOINT = 768;
 
@@ -580,26 +584,37 @@ function updateBossLevel() {
     }
 
     // 2. Turret Interaction
-    // Fix: If onTurret, we don't need overlap to exit.
-    // Logic: (Check overlap AND Key) OR (OnTurret AND Key)
-    // Simplify: if KeyDown X -> Check state.
-    if (Phaser.Input.Keyboard.JustDown(keys.x) || mobileControls.turretToggle) {
+    // Add cooldown check to prevent rapid toggling and glitches
+    const currentTime = currentScene.time.now;
+    const canToggleTurret = currentTime - lastTurretToggleTime > TURRET_TOGGLE_COOLDOWN;
+    
+    if ((Phaser.Input.Keyboard.JustDown(keys.x) || mobileControls.turretToggle) && canToggleTurret) {
         mobileControls.turretToggle = false;
+        lastTurretToggleTime = currentTime;
+        
         if (onTurret) {
-            // Exit logic
+            // Exit logic - place player to the left of turret at same height
             onTurret = false;
-            player.x = turret.x;
-            player.y = turret.y - 50;
-            // Keep current age when exiting turret
+            player.x = turret.x - 60; // Place player to the left of turret
+            player.y = turret.y; // Keep at same height as turret, not offset
+            // Re-enable gravity when exiting turret
+            player.body.setAllowGravity(true);
+            player.body.setVelocity(0, 0); // Clear any velocity
+            infoText.setText('Age: ' + AGES[currentAge].name);
         } else if (currentScene.physics.overlap(player, turret)) {
             // Enter logic
             onTurret = true;
-            // Position player at turret location (x and initial y)
+            // Store initial turret position to prevent unintended movement
+            const initialTurretY = turret.y;
+            // Position player at turret location
             player.x = turret.x;
-            moveTurretWithPlayer(0); // Sync positions using helper function
-            // Player remains visible and vulnerable while on turret to increase difficulty
-            // Must quickly enter/exit to avoid boss bullets while shooting
-            // Use arrow keys to move turret up/down, player moves with it
+            player.y = initialTurretY;
+            // Disable gravity while on turret
+            player.body.setAllowGravity(false);
+            player.body.setVelocity(0, 0); // Clear any velocity to prevent glitches
+            // Sync physics body
+            player.body.updateFromGameObject();
+            turret.body.updateFromGameObject();
             infoText.setText('Mode: TURRET (Arrows: Move, Space: Shoot, X: Exit)');
         }
     }
