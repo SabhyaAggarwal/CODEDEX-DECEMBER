@@ -969,34 +969,40 @@ function addAgeSwitchEvents(element, ageValue) {
     });
 }
 
-// Helper function to add events for turret toggle control
+// Helper function to add events for turret toggle control (single trigger like age switch)
 function addTurretToggleEvents(element) {
-    // Touch events
+    // Touch events - trigger on touch start only
     element.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        mobileControls.turretToggle = true;
+        // Only trigger if not on cooldown
+        if (!mobileControls.turretToggle) {
+            mobileControls.turretToggle = true;
+        }
     });
     element.addEventListener('touchend', (e) => {
         e.preventDefault();
-        mobileControls.turretToggle = false;
+        // Don't reset here - let the game logic handle it
     });
     element.addEventListener('touchcancel', (e) => {
         e.preventDefault();
-        mobileControls.turretToggle = false;
+        // Don't reset here - let the game logic handle it
     });
     
-    // Mouse events for desktop testing
+    // Mouse events for desktop testing - trigger on mouse down only
     element.addEventListener('mousedown', (e) => {
         e.preventDefault();
-        mobileControls.turretToggle = true;
+        // Only trigger if not on cooldown
+        if (!mobileControls.turretToggle) {
+            mobileControls.turretToggle = true;
+        }
     });
     element.addEventListener('mouseup', (e) => {
         e.preventDefault();
-        mobileControls.turretToggle = false;
+        // Don't reset here - let the game logic handle it
     });
     element.addEventListener('mouseleave', (e) => {
         e.preventDefault();
-        mobileControls.turretToggle = false;
+        // Don't reset here - let the game logic handle it
     });
 }
 
