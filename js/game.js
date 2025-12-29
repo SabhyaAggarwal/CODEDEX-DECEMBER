@@ -970,6 +970,7 @@ function addAgeSwitchEvents(element, ageValue) {
 }
 
 // Helper function to add events for turret toggle control (single trigger like age switch)
+// The flag is set on press and reset by game logic after processing
 function addTurretToggleEvents(element) {
     // Touch events - trigger on touch start only
     element.addEventListener('touchstart', (e) => {
@@ -981,11 +982,9 @@ function addTurretToggleEvents(element) {
     });
     element.addEventListener('touchend', (e) => {
         e.preventDefault();
-        // Don't reset here - let the game logic handle it
     });
     element.addEventListener('touchcancel', (e) => {
         e.preventDefault();
-        // Don't reset here - let the game logic handle it
     });
     
     // Mouse events for desktop testing - trigger on mouse down only
@@ -998,11 +997,9 @@ function addTurretToggleEvents(element) {
     });
     element.addEventListener('mouseup', (e) => {
         e.preventDefault();
-        // Don't reset here - let the game logic handle it
     });
     element.addEventListener('mouseleave', (e) => {
         e.preventDefault();
-        // Don't reset here - let the game logic handle it
     });
 }
 
