@@ -8,17 +8,145 @@
     <style>
         body {
             margin: 0;
-            background-color: #1a1a1a;
+            background: linear-gradient(135deg, #0a0015 0%, #1a0033 50%, #0d001a 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
+            color: #00ffff;
             font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         #game-container {
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.5), 0 0 80px rgba(0, 255, 255, 0.3);
             display: none; /* Hide game initially */
+            position: relative;
+        }
+        
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .mobile-controls.active {
+            display: block;
+        }
+        
+        .control-group {
+            pointer-events: auto;
+        }
+        
+        /* Movement Controls - Bottom Left */
+        .movement-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Jump Control - Bottom Center */
+        .jump-control {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Age Switch Controls - Bottom Right */
+        .age-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Boss Controls - Centered Above Bottom Controls */
+        .boss-controls {
+            position: absolute;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .boss-controls.active {
+            display: flex;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 15px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            border-radius: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            min-width: 60px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .control-btn:active {
+            background: linear-gradient(135deg, #330066 0%, #660099 100%);
+            border-color: #ff00ff;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            transform: scale(0.95);
+        }
+        
+        .control-btn.age-child {
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+        
+        .control-btn.age-adult {
+            border-color: #ff00ff;
+            color: #ff00ff;
+        }
+        
+        .control-btn.age-elder {
+            border-color: #9d00ff;
+            color: #9d00ff;
+        }
+        
+        /* Hide mobile controls on desktop */
+        @media (min-width: 769px) {
+            .mobile-controls {
+                display: none !important;
+            }
+        }
+        
+        /* Responsive game container */
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+            
+            #game-container canvas {
+                max-width: 100vw !important;
+                height: auto !important;
+            }
         }
         .menu-overlay {
             position: absolute;
@@ -26,24 +154,39 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
+            background: radial-gradient(ellipse at center, rgba(26, 0, 51, 0.95) 0%, rgba(10, 0, 21, 0.98) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
         }
+        h1 {
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            font-size: 48px;
+            margin-bottom: 40px;
+            letter-spacing: 4px;
+        }
         .menu-button {
-            background-color: #555;
-            color: white;
-            border: 2px solid #fff;
+            background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+            color: #00ffff;
+            border: 2px solid #00ffff;
             padding: 15px 30px;
             font-size: 24px;
             cursor: pointer;
             margin: 10px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
         .menu-button:hover {
-            background-color: #777;
+            background: linear-gradient(135deg, #330066 0%, #660099 100%);
+            border-color: #ff00ff;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5);
+            transform: scale(1.05);
         }
         #instructions-screen {
             display: none; /* Hidden by default */
@@ -52,6 +195,8 @@
         }
         #instructions-screen h2 {
             margin-top: 0;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
         }
         #instructions-screen ul {
             list-style: none;
@@ -60,6 +205,14 @@
         }
         #instructions-screen li {
             margin-bottom: 10px;
+            color: #00ffff;
+        }
+        #instructions-screen strong {
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+        #instructions-screen p {
+            color: #00ffff;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
@@ -85,11 +238,43 @@
                 <li><strong>Arrow Keys (Up/Down):</strong> Aim the turret.</li>
                 <li><strong>Spacebar:</strong> Fire the turret.</li>
             </ul>
+            <p><strong>Mobile/Touch:</strong> On mobile devices, on-screen touch controls will appear automatically.</p>
+            <p><strong>Hint:</strong> To climb unclimbable walls, you can alternate between child and adult fast.</p>
             <button class="menu-button" id="back-button">Back</button>
         </div>
     </div>
 
     <div id="game-container"></div>
+    
+    <!-- Mobile Touch Controls -->
+    <div class="mobile-controls" id="mobile-controls">
+        <!-- Movement Controls -->
+        <div class="control-group movement-controls">
+            <button class="control-btn" id="btn-left" aria-label="Move Left">◄</button>
+            <button class="control-btn" id="btn-right" aria-label="Move Right">►</button>
+        </div>
+        
+        <!-- Jump Control -->
+        <div class="control-group jump-control">
+            <button class="control-btn" id="btn-jump" aria-label="Jump">▲</button>
+        </div>
+        
+        <!-- Age Switch Controls -->
+        <div class="control-group age-controls">
+            <button class="control-btn age-child" id="btn-child" aria-label="Switch to Child">1</button>
+            <button class="control-btn age-adult" id="btn-adult" aria-label="Switch to Adult">2</button>
+            <button class="control-btn age-elder" id="btn-elder" aria-label="Switch to Elder">3</button>
+        </div>
+        
+        <!-- Boss Level Controls -->
+        <div class="control-group boss-controls" id="boss-controls">
+            <button class="control-btn" id="btn-turret" aria-label="Enter or Exit Turret">X</button>
+            <button class="control-btn" id="btn-aim-up" aria-label="Aim Turret Up">▲ Aim</button>
+            <button class="control-btn" id="btn-aim-down" aria-label="Aim Turret Down">▼ Aim</button>
+            <button class="control-btn" id="btn-fire" aria-label="Fire Turret">Fire</button>
+        </div>
+    </div>
+    
     <script src="js/game.js?v=3"></script>
 </body>
 

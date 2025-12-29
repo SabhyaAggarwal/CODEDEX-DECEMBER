@@ -3,6 +3,11 @@ const config = {
     width: 800,
     height: 600,
     parent: 'game-container',
+    backgroundColor: '#0a0015',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -17,7 +22,7 @@ const config = {
     }
 };
 
-const game = new Phaser.Game(config);
+let game;
 
 let player;
 let cursors;
@@ -44,6 +49,24 @@ let transitionText;
 let transitionIcon;
 let currentScene;
 
+// Mobile control states
+let mobileControls = {
+    left: false,
+    right: false,
+    jump: false,
+    ageSwitch: null,
+    turretToggle: false,
+    aimUp: false,
+    aimDown: false,
+    fire: false
+};
+
+// Mobile breakpoint constant
+const MOBILE_BREAKPOINT = 768;
+
+// Track if mobile controls have been initialized
+let mobileControlsInitialized = false;
+
 // Turret movement constants
 const TURRET_MOVE_SPEED = 3;
 const TURRET_MIN_Y = 300;
@@ -52,10 +75,10 @@ const TURRET_MAX_Y = 400; // Match boss range so no safe spots
 // Level design constants
 const CHILD_TUNNEL_GAP = 22; // Child is 20px tall, needs small gap
 
-// Age Statistics
+// Age Statistics - Cyberpunk Theme
 const AGES = {
     child: {
-        color: 0x00ff00,
+        color: 0x00ffff,  // Cyan
         width: 20,
         height: 20,
         speed: 300,
@@ -64,7 +87,7 @@ const AGES = {
         index: 0
     },
     adult: {
-        color: 0x0000ff,
+        color: 0xff00ff,  // Magenta/Pink
         width: 32,
         height: 48,
         speed: 200,
@@ -73,11 +96,11 @@ const AGES = {
         index: 1
     },
     elder: {
-        color: 0x808080,
+        color: 0x9d00ff,  // Purple
         width: 32,
         height: 40,
         speed: 100,
-        jump: -250,
+        jump: -500,
         name: 'ELDER',
         index: 2
     }
@@ -115,7 +138,7 @@ function create() {
     // 2. Create Player
     // Use currentAge to persist state between levels
     const initialStats = AGES[currentAge];
-    player = this.add.rectangle(100, 450, initialStats.width, initialStats.height, initialStats.color);
+    player = this.add.rectangle(50, 450, initialStats.width, initialStats.height, initialStats.color);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
@@ -180,280 +203,242 @@ function createLevel(scene, level) {
     }
 }
 
-// LEVEL 1: Age-Switching Tutorial - Requires all three ages
+// LEVEL 1: Redesigned based on user image
 function buildLevel1(scene) {
-    // Floor
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    // Floor - Dark purple
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Left wall
-    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x333333);
+    // Wall on the extreme left - Dark cyan
+    let wall1 = scene.add.rectangle(10, 300, 20, 600, 0x003344);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Section 1: High ledge (ADULT ONLY - requires high jump -600)
-    // Floor at y=560, ledge top at y=390, gap=170px (only adult can reach)
-    let ledge1 = scene.add.rectangle(150, 480, 100, 220, 0x555555);
-    scene.physics.add.existing(ledge1, true);
-    obstacles.add(ledge1);
+    // Tall pillar with a gap for the child (22px high) - Purple
+    // Floor top is at y=560.
+    let pillarBase = scene.add.rectangle(100, 550, 40, 20, 0x4d0099);
+    scene.physics.add.existing(pillarBase, true);
+    obstacles.add(pillarBase);
 
-    // Ceiling above ledge to prevent child from bouncing over
-    let ceiling1 = scene.add.rectangle(150, 320, 100, 100, 0x555555);
-    scene.physics.add.existing(ceiling1, true);
-    obstacles.add(ceiling1);
+    // Gap of 22px above the base. Base top is at 540. Pillar bottom is at 518.
+    let pillarTop = scene.add.rectangle(100, 268, 40, 500, 0x4d0099);
+    scene.physics.add.existing(pillarTop, true);
+    obstacles.add(pillarTop);
 
-    // Section 2: Tight tunnel (CHILD ONLY - 25px gap, child is 20px)
-    // Tunnel at comfortable height for child to reach from ledge
-    // Floor at 390, height 20 -> top at 380
-    // Ceiling should have bottom at 380-25=355, so center at 355-10=345
-    let tunnelFloor = scene.add.rectangle(350, 390, 200, 20, 0x555555);
-    scene.physics.add.existing(tunnelFloor, true);
-    obstacles.add(tunnelFloor);
+    // Three ascending ghost platforms - Cyan glow
+    let plat1 = scene.add.rectangle(250, 400, 100, 20, 0x00ffff).setAlpha(0.3);
+    scene.physics.add.existing(plat1, true);
+    ghostPlatforms.add(plat1);
 
-    let tunnelCeiling = scene.add.rectangle(350, 345, 200, 20, 0x555555);
-    scene.physics.add.existing(tunnelCeiling, true);
-    obstacles.add(tunnelCeiling);
+    let plat2 = scene.add.rectangle(400, 350, 100, 20, 0x00ffff).setAlpha(0.3);
+    scene.physics.add.existing(plat2, true);
+    ghostPlatforms.add(plat2);
 
-    // Section 3: Ghost platform gap (ELDER ONLY)
-    let platformBefore = scene.add.rectangle(500, 520, 60, 20, 0x555555);
-    scene.physics.add.existing(platformBefore, true);
-    obstacles.add(platformBefore);
+    let plat3 = scene.add.rectangle(550, 300, 100, 20, 0x00ffff).setAlpha(0.3);
+    scene.physics.add.existing(plat3, true);
+    ghostPlatforms.add(plat3);
 
-    // Ghost platforms across gap
-    let gp1 = scene.add.rectangle(580, 520, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp1, true);
-    ghostPlatforms.add(gp1);
-
-    let gp2 = scene.add.rectangle(650, 520, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp2, true);
-    ghostPlatforms.add(gp2);
-
-    let platformAfter = scene.add.rectangle(720, 520, 60, 20, 0x555555);
-    scene.physics.add.existing(platformAfter, true);
-    obstacles.add(platformAfter);
-
-    finishZone = scene.add.rectangle(760, 480, 40, 40, 0x00ff00);
+    // Finish zone - Bright pink
+    finishZone = scene.add.rectangle(700, 250, 50, 50, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 
 // LEVEL 2: Vertical Tower - Requires Adult jumps, Child tunnels, Elder ghosts
 function buildLevel2(scene) {
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Stage 1: Adult jump to first platform (130px jump)
-    let p1 = scene.add.rectangle(100, 450, 120, 20, 0x555555);
+    // Stage 1: Adult jump to first platform (130px jump) - Magenta
+    let p1 = scene.add.rectangle(100, 450, 120, 20, 0x660066);
     scene.physics.add.existing(p1, true);
     obstacles.add(p1);
 
-    // Tall wall to prevent shortcuts
-    let wall1 = scene.add.rectangle(180, 350, 20, 280, 0x555555);
+    // Tall wall to prevent shortcuts - Dark purple
+    let wall1 = scene.add.rectangle(180, 350, 20, 280, 0x330066);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    // Stage 2: Child-only tunnel to reach next area (22px gap)
+    // Stage 2: Child-only tunnel to reach next area (22px gap) - Cyan tint
     // Floor at 465, height 20 -> top at 455
     // Ceiling should have bottom at 455-22=433, so center at 433-10=423
-    let tunnelFloor1 = scene.add.rectangle(280, 465, 120, 20, 0x555555);
+    let tunnelFloor1 = scene.add.rectangle(280, 465, 120, 20, 0x004466);
     scene.physics.add.existing(tunnelFloor1, true);
     obstacles.add(tunnelFloor1);
 
-    let tunnelCeil1 = scene.add.rectangle(280, 423, 120, 20, 0x555555);
+    let tunnelCeil1 = scene.add.rectangle(280, 423, 120, 20, 0x004466);
     scene.physics.add.existing(tunnelCeil1, true);
     obstacles.add(tunnelCeil1);
 
-    // Stage 3: Adult jump to higher platform (150px jump)
-    let p2 = scene.add.rectangle(420, 340, 100, 20, 0x555555);
+    // Stage 3: Adult jump to higher platform (150px jump) - Magenta
+    let p2 = scene.add.rectangle(420, 340, 100, 20, 0x660066);
     scene.physics.add.existing(p2, true);
     obstacles.add(p2);
 
-    // Wall to prevent shortcuts
-    let wall2 = scene.add.rectangle(480, 250, 20, 200, 0x555555);
+    // Wall to prevent shortcuts - Dark purple
+    let wall2 = scene.add.rectangle(480, 250, 20, 200, 0x330066);
     scene.physics.add.existing(wall2, true);
     obstacles.add(wall2);
 
-    // Stage 4: Ghost platforms (Elder only)
-    let gp1 = scene.add.rectangle(540, 340, 60, 20, 0xffffff).setAlpha(0.1);
+    // Stage 4: Ghost platforms (Elder only) - Cyan glow
+    let gp1 = scene.add.rectangle(540, 340, 60, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(gp1, true);
     ghostPlatforms.add(gp1);
 
-    let gp2 = scene.add.rectangle(620, 280, 60, 20, 0xffffff).setAlpha(0.1);
+    let gp2 = scene.add.rectangle(620, 280, 60, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(gp2, true);
     ghostPlatforms.add(gp2);
 
-    let gp3 = scene.add.rectangle(700, 220, 60, 20, 0xffffff).setAlpha(0.1);
+    let gp3 = scene.add.rectangle(700, 220, 60, 20, 0x00ffff).setAlpha(0.3);
     scene.physics.add.existing(gp3, true);
     ghostPlatforms.add(gp3);
 
-    // Final platform
-    let finalPlat = scene.add.rectangle(750, 200, 80, 20, 0x555555);
+    // Final platform - Pink
+    let finalPlat = scene.add.rectangle(750, 200, 80, 20, 0xff0099);
     scene.physics.add.existing(finalPlat, true);
     obstacles.add(finalPlat);
 
-    finishZone = scene.add.rectangle(770, 160, 40, 40, 0x00ff00);
+    finishZone = scene.add.rectangle(770, 160, 40, 40, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 
-// LEVEL 3: The Labyrinth - Multiple tunnels and age switches
+// LEVEL 3: The Gauntlet - A test of all forms
 function buildLevel3(scene) {
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    // Floor
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Adult stairs to reach upper area
-    let s1 = scene.add.rectangle(100, 480, 80, 20, 0x555555);
-    scene.physics.add.existing(s1, true);
-    obstacles.add(s1);
-
-    let s2 = scene.add.rectangle(200, 380, 80, 20, 0x555555);
-    scene.physics.add.existing(s2, true);
-    obstacles.add(s2);
-
-    let s3 = scene.add.rectangle(300, 280, 80, 20, 0x555555);
-    scene.physics.add.existing(s3, true);
-    obstacles.add(s3);
-
-    // Child-only tight tunnel (22px gap, child is 20px tall)
-    let tFloor1 = scene.add.rectangle(500, 285, 200, 20, 0x555555);
-    scene.physics.add.existing(tFloor1, true);
-    obstacles.add(tFloor1);
-
-    let tCeil1 = scene.add.rectangle(500, 243, 200, 20, 0x555555);
-    scene.physics.add.existing(tCeil1, true);
-    obstacles.add(tCeil1);
-
-    // Wall after tunnel to force drop
-    let wall1 = scene.add.rectangle(610, 380, 20, 210, 0x555555);
+    // Part 1: Child Tunnel
+    // Wall with a small gap at the bottom.
+    let wall1 = scene.add.rectangle(200, 450, 40, 220, 0x660066);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
+    // Create the gap by placing a ceiling object. Floor top is 560.
+    let tunnelCeiling = scene.add.rectangle(200, 560 - 20 - CHILD_TUNNEL_GAP, 40, 20, 0x660066);
+    scene.physics.add.existing(tunnelCeiling, true);
+    obstacles.add(tunnelCeiling);
 
-    // Platform below tunnel exit
-    let p1 = scene.add.rectangle(670, 480, 80, 20, 0x555555);
-    scene.physics.add.existing(p1, true);
-    obstacles.add(p1);
 
-    // Elder-only ghost platforms to cross final gap
-    let gp1 = scene.add.rectangle(680, 420, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp1, true);
-    ghostPlatforms.add(gp1);
+    // Part 2: Adult Jumps
+    // A platform after the tunnel.
+    let plat1 = scene.add.rectangle(350, 500, 100, 20, 0x660066);
+    scene.physics.add.existing(plat1, true);
+    obstacles.add(plat1);
 
-    let gp2 = scene.add.rectangle(730, 380, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp2, true);
-    ghostPlatforms.add(gp2);
+    // Higher platform requiring a good adult jump.
+    let plat2 = scene.add.rectangle(500, 400, 100, 20, 0x660066);
+    scene.physics.add.existing(plat2, true);
+    obstacles.add(plat2);
 
-    // Final platform
-    let finalP = scene.add.rectangle(770, 360, 60, 20, 0x555555);
-    scene.physics.add.existing(finalP, true);
-    obstacles.add(finalP);
+    // Highest platform in this section.
+    let plat3 = scene.add.rectangle(350, 300, 100, 20, 0x660066);
+    scene.physics.add.existing(plat3, true);
+    obstacles.add(plat3);
 
-    // Walls to prevent shortcuts
-    let wall2 = scene.add.rectangle(390, 380, 20, 240, 0x555555);
-    scene.physics.add.existing(wall2, true);
-    obstacles.add(wall2);
 
-    let wall3 = scene.add.rectangle(640, 520, 20, 140, 0x555555);
-    scene.physics.add.existing(wall3, true);
-    obstacles.add(wall3);
+    // Part 3: Elder Ghost Bridge
+    // A gap that requires the Elder to cross.
+    let ghost1 = scene.add.rectangle(500, 300, 80, 20, 0x00ffff).setAlpha(0.3);
+    scene.physics.add.existing(ghost1, true);
+    ghostPlatforms.add(ghost1);
 
-    finishZone = scene.add.rectangle(770, 320, 40, 40, 0x00ff00);
-    scene.physics.add.existing(finishZone, true);
-}
+    let ghost2 = scene.add.rectangle(650, 300, 80, 20, 0x00ffff).setAlpha(0.3);
+    scene.physics.add.existing(ghost2, true);
+    ghostPlatforms.add(ghost2);
 
-// LEVEL 4: Ghost Maze - Complex Elder navigation with obstacles
-function buildLevel4(scene) {
-    let startPlat = scene.add.rectangle(100, 540, 160, 40, 0x654321);
-    scene.physics.add.existing(startPlat, true);
-    obstacles.add(startPlat);
-
-    // First set of ghost platforms (Elder must navigate)
-    let gp1 = scene.add.rectangle(220, 540, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp1, true);
-    ghostPlatforms.add(gp1);
-
-    let gp2 = scene.add.rectangle(300, 540, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp2, true);
-    ghostPlatforms.add(gp2);
-
-    // Solid platform mid-way
-    let midPlat = scene.add.rectangle(380, 540, 60, 20, 0x555555);
-    scene.physics.add.existing(midPlat, true);
-    obstacles.add(midPlat);
-
-    // Child-only tunnel shortcut bypass (22px gap)
-    // Floor at 485, height 20 -> top at 475
-    // Ceiling should have bottom at 475-22=453, so center at 453-10=443
-    let tunnelF = scene.add.rectangle(380, 485, 60, 20, 0x555555);
-    scene.physics.add.existing(tunnelF, true);
-    obstacles.add(tunnelF);
-
-    let tunnelC = scene.add.rectangle(380, 443, 60, 20, 0x555555);
-    scene.physics.add.existing(tunnelC, true);
-    obstacles.add(tunnelC);
-
-    // More ghost platforms after tunnel (Elder path)
-    let gp3 = scene.add.rectangle(460, 480, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp3, true);
-    ghostPlatforms.add(gp3);
-
-    let gp4 = scene.add.rectangle(540, 440, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp4, true);
-    ghostPlatforms.add(gp4);
-
-    let gp5 = scene.add.rectangle(620, 400, 50, 20, 0xffffff).setAlpha(0.1);
-    scene.physics.add.existing(gp5, true);
-    ghostPlatforms.add(gp5);
-
-    // Adult jump required to reach final platform
-    let preFinal = scene.add.rectangle(680, 400, 60, 20, 0x555555);
-    scene.physics.add.existing(preFinal, true);
-    obstacles.add(preFinal);
-
-    // High final platform (Adult jump needed)
-    let finalPlat = scene.add.rectangle(750, 280, 80, 20, 0x555555);
+    // Final platform with the finish zone.
+    let finalPlat = scene.add.rectangle(750, 280, 100, 40, 0x660066);
     scene.physics.add.existing(finalPlat, true);
     obstacles.add(finalPlat);
 
-    // Walls to block shortcuts
-    let wall1 = scene.add.rectangle(450, 520, 20, 140, 0x555555);
+    finishZone = scene.add.rectangle(750, 240, 40, 40, 0xff0080);
+    scene.physics.add.existing(finishZone, true);
+}
+
+// LEVEL 4: The Choice - A puzzle of paths
+function buildLevel4(scene) {
+    // Floor
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
+    scene.physics.add.existing(floor, true);
+    obstacles.add(floor);
+
+    // Starting platform.
+    let startPlat = scene.add.rectangle(100, 500, 150, 20, 0x660066);
+    scene.physics.add.existing(startPlat, true);
+    obstacles.add(startPlat);
+
+    // The split point.
+    let wall1 = scene.add.rectangle(250, 400, 40, 200, 0x660066);
     scene.physics.add.existing(wall1, true);
     obstacles.add(wall1);
 
-    let wall2 = scene.add.rectangle(600, 480, 20, 200, 0x555555);
-    scene.physics.add.existing(wall2, true);
-    obstacles.add(wall2);
+    // Path 1: Child's Shortcut
+    // A low tunnel that leads directly to the end.
+    let tunnelF = scene.add.rectangle(350, 505, 150, 20, 0x660066);
+    scene.physics.add.existing(tunnelF, true);
+    obstacles.add(tunnelF);
+    let tunnelC = scene.add.rectangle(350, 505 - CHILD_TUNNEL_GAP, 150, 20, 0x660066);
+    scene.physics.add.existing(tunnelC, true);
+    obstacles.add(tunnelC);
 
-    finishZone = scene.add.rectangle(760, 240, 40, 40, 0x00ff00);
+    // Path 2: Adult's Gauntlet
+    // A series of platforms that are too high for the Child.
+    let plat1 = scene.add.rectangle(350, 400, 100, 20, 0x660066);
+    scene.physics.add.existing(plat1, true);
+    obstacles.add(plat1);
+
+    let plat2 = scene.add.rectangle(500, 300, 100, 20, 0x660066);
+    scene.physics.add.existing(plat2, true);
+    obstacles.add(plat2);
+
+    // A drop-down to the final section.
+    let plat3 = scene.add.rectangle(650, 400, 100, 20, 0x660066);
+    scene.physics.add.existing(plat3, true);
+    obstacles.add(plat3);
+
+
+    // Both paths converge here.
+    let finalPlat = scene.add.rectangle(750, 500, 100, 20, 0x660066);
+    scene.physics.add.existing(finalPlat, true);
+    obstacles.add(finalPlat);
+
+    finishZone = scene.add.rectangle(750, 450, 40, 40, 0xff0080);
     scene.physics.add.existing(finishZone, true);
 }
 function buildBossLevel(scene) {
     // Boss Arena
-    let floor = scene.add.rectangle(400, 580, 800, 40, 0x654321);
+    let floor = scene.add.rectangle(400, 580, 800, 40, 0x1a0033);
     scene.physics.add.existing(floor, true);
     obstacles.add(floor);
 
-    // Boss
-    boss = scene.add.rectangle(700, 500, 80, 120, 0xff0000);
+    // Boss - Hot pink/magenta
+    boss = scene.add.rectangle(700, 500, 80, 120, 0xff0099);
     scene.physics.add.existing(boss);
     boss.body.setImmovable(true);
     boss.body.allowGravity = false; // Fix: Prevent falling
 
-    // Turret (Start invisible?)
-    turret = scene.add.rectangle(100, 500, 50, 50, 0xffff00);
+    // Turret - Cyan
+    turret = scene.add.rectangle(100, 500, 50, 50, 0x00ffff);
     scene.physics.add.existing(turret);
     turret.body.allowGravity = false; // Fix: Prevent falling
 
     scene.physics.add.collider(player, boss, hitBossBody, null, scene);
 
-    scene.add.text(400, 100, 'BOSS FIGHT!', { fontSize: '32px', fill: '#f00' }).setOrigin(0.5);
+    scene.add.text(400, 100, 'BOSS FIGHT!', { fontSize: '32px', fill: '#ff00ff' }).setOrigin(0.5);
     
     // Boss health bar
-    scene.add.text(400, 30, 'BOSS HEALTH:', { fontSize: '20px', fill: '#fff' }).setOrigin(0.5);
+    scene.add.text(400, 30, 'BOSS HEALTH:', { fontSize: '20px', fill: '#00ffff' }).setOrigin(0.5);
     // Background bar
-    scene.add.rectangle(400, 55, 304, 24, 0x000000).setOrigin(0.5);
+    scene.add.rectangle(400, 55, 304, 24, 0x0a0015).setOrigin(0.5);
     // Health bar (will be updated in updateBossLevel)
-    bossHealthBar = scene.add.rectangle(400, 55, 300, 20, 0xff0000).setOrigin(0.5);
+    bossHealthBar = scene.add.rectangle(400, 55, 300, 20, 0xff0099).setOrigin(0.5);
+    
+    // Show boss controls on mobile
+    if (typeof window.showBossControls === 'function') {
+        window.showBossControls(true);
+    }
 }
 
 function update() {
@@ -462,23 +447,32 @@ function update() {
 
     // Movement (disabled when on turret)
     if (!onTurret) {
-        if (cursors.left.isDown) {
+        if (cursors.left.isDown || mobileControls.left) {
             player.body.setVelocityX(-AGES[currentAge].speed);
-        } else if (cursors.right.isDown) {
+        } else if (cursors.right.isDown || mobileControls.right) {
             player.body.setVelocityX(AGES[currentAge].speed);
         } else {
             player.body.setVelocityX(0);
         }
 
-        if (cursors.up.isDown && player.body.touching.down) {
+        if ((cursors.up.isDown || mobileControls.jump) && player.body.touching.down) {
             player.body.setVelocityY(AGES[currentAge].jump);
         }
     }
 
     // Age Switching
-    if (Phaser.Input.Keyboard.JustDown(keys.one)) switchAgeRequest('child');
-    if (Phaser.Input.Keyboard.JustDown(keys.two)) switchAgeRequest('adult');
-    if (Phaser.Input.Keyboard.JustDown(keys.three)) switchAgeRequest('elder');
+    if (Phaser.Input.Keyboard.JustDown(keys.one) || mobileControls.ageSwitch === 'child') {
+        switchAgeRequest('child');
+        mobileControls.ageSwitch = null;
+    }
+    if (Phaser.Input.Keyboard.JustDown(keys.two) || mobileControls.ageSwitch === 'adult') {
+        switchAgeRequest('adult');
+        mobileControls.ageSwitch = null;
+    }
+    if (Phaser.Input.Keyboard.JustDown(keys.three) || mobileControls.ageSwitch === 'elder') {
+        switchAgeRequest('elder');
+        mobileControls.ageSwitch = null;
+    }
 
     // Ghost Platform Visibility
     ghostPlatforms.children.iterate((plat) => {
@@ -534,13 +528,13 @@ function updateBossLevel() {
     if (bossHealthBar && bossHealthBar.active) {
         const healthPercent = bossHealth / bossMaxHealth;
         bossHealthBar.width = 300 * healthPercent;
-        // Update color based on health
+        // Update color based on health - Cyberpunk colors
         if (healthPercent > 0.6) {
-            bossHealthBar.fillColor = 0x00ff00; // Green
+            bossHealthBar.fillColor = 0x00ffff; // Cyan
         } else if (healthPercent > 0.3) {
-            bossHealthBar.fillColor = 0xffff00; // Yellow
+            bossHealthBar.fillColor = 0xff00ff; // Magenta
         } else {
-            bossHealthBar.fillColor = 0xff0000; // Red
+            bossHealthBar.fillColor = 0xff0080; // Hot pink
         }
     }
 
@@ -563,11 +557,11 @@ function updateBossLevel() {
     // range: 300-400.
     boss.y = 350 + Math.sin(game.getTime() / 500) * 50;
 
-    // Shoot at player (only if boss exists)
+    // Shoot at player (only if boss exists) - Pink bullets
     bossShootTimer++;
     if (bossShootTimer > 100) {
         bossShootTimer = 0;
-        let bullet = currentScene.add.rectangle(boss.x, boss.y, 20, 20, 0xff0000);
+        let bullet = currentScene.add.rectangle(boss.x, boss.y, 20, 20, 0xff0099);
         currentScene.physics.add.existing(bullet);
 
         // FORCE PHYSICS SETTINGS
@@ -589,7 +583,8 @@ function updateBossLevel() {
     // Fix: If onTurret, we don't need overlap to exit.
     // Logic: (Check overlap AND Key) OR (OnTurret AND Key)
     // Simplify: if KeyDown X -> Check state.
-    if (Phaser.Input.Keyboard.JustDown(keys.x)) {
+    if (Phaser.Input.Keyboard.JustDown(keys.x) || mobileControls.turretToggle) {
+        mobileControls.turretToggle = false;
         if (onTurret) {
             // Exit logic
             onTurret = false;
@@ -618,17 +613,17 @@ function updateBossLevel() {
         player.body.updateFromGameObject();
         
         // Turret vertical movement with arrow keys
-        if (cursors.up.isDown) {
+        if (cursors.up.isDown || mobileControls.aimUp) {
             moveTurretWithPlayer(-TURRET_MOVE_SPEED);
-        } else if (cursors.down.isDown) {
+        } else if (cursors.down.isDown || mobileControls.aimDown) {
             moveTurretWithPlayer(TURRET_MOVE_SPEED);
         }
         
         // Shooting logic
-        if (cursors.space.isDown) {
+        if (cursors.space.isDown || mobileControls.fire) {
             if (currentScene.time.now > turretShootCooldown) {
                 turretShootCooldown = currentScene.time.now + TURRET_FIRE_RATE;
-                let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0xffff00);
+                let bullet = currentScene.add.rectangle(turret.x, turret.y, 10, 10, 0x00ffff);
                 currentScene.physics.add.existing(bullet);
 
                 // FORCE PHYSICS SETTINGS
@@ -681,11 +676,11 @@ function damageBoss(boss, bullet) {
     bullet.destroy();
     bossHealth--;
 
-    // Boss is a Rectangle, no setTint. Use setFillStyle.
+    // Boss is a Rectangle, no setTint. Use setFillStyle - Flash cyan when hit
     boss.lastColor = boss.fillColor;
-    boss.setFillStyle(0xffaa00);
+    boss.setFillStyle(0x00ffff);
     currentScene.time.delayedCall(100, () => {
-        if (boss && boss.active) boss.setFillStyle(0xff0000); // Standard red
+        if (boss && boss.active) boss.setFillStyle(0xff0099); // Back to magenta
     });
 
     if (bossHealth <= 0) {
@@ -769,7 +764,7 @@ function switchAgeRequest(newAgeKey) {
     // Darken the current color: 0x888888 tint equivalent is basically half brightness
     // But easier to just set to grey for the pause duration
     player.lastColor = player.fillColor; // Save current color
-    player.setFillStyle(0x555555);
+    player.setFillStyle(0x660066);
 
     // Determine duration and icon
     const baseDelay = 500; // 0.5 seconds per step
@@ -818,6 +813,10 @@ function onSecondValues() {
 }
 
 function failLevel() {
+    // Hide boss controls on mobile when leaving boss level
+    if (currentLevel === 5 && typeof window.showBossControls === 'function') {
+        window.showBossControls(false);
+    }
     // restart scene
     currentScene.scene.restart();
 }
@@ -834,11 +833,235 @@ function winGame(player, goal) {
         timerText.setText('YOU WON!');
         levelTimer.remove();
         player.body.setVelocity(0, 0);
-        currentScene.add.text(400, 300, 'GAME COMPLETE', { fontSize: '64px', fill: '#0f0' }).setOrigin(0.5);
+        currentScene.add.text(400, 300, 'GAME COMPLETE', { fontSize: '64px', fill: '#ff00ff' }).setOrigin(0.5);
     }
 }
 
 function hitBossBody(player, boss) {
     // Damage player?
     failLevel();
+}
+
+// Menu and Game Start Logic
+window.addEventListener('load', () => {
+    const playButton = document.getElementById('play-button');
+    const instructionsButton = document.getElementById('instructions-button');
+    const backButton = document.getElementById('back-button');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const mainMenu = document.getElementById('main-menu');
+    const instructionsScreen = document.getElementById('instructions-screen');
+    const gameContainer = document.getElementById('game-container');
+
+    // Validate all required elements exist
+    const requiredElements = {
+        playButton, instructionsButton, backButton,
+        menuOverlay, mainMenu, instructionsScreen, gameContainer
+    };
+
+    for (const [name, element] of Object.entries(requiredElements)) {
+        if (!element) {
+            console.error(`Required element missing: ${name}`);
+            return;
+        }
+    }
+
+    playButton.addEventListener('click', () => {
+        menuOverlay.style.display = 'none';
+        gameContainer.style.display = 'block';
+        startGame();
+        // Show mobile controls on mobile devices
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
+            const mobileControlsEl = document.getElementById('mobile-controls');
+            if (mobileControlsEl) {
+                mobileControlsEl.classList.add('active');
+            } else {
+                console.error('Required element missing: mobile-controls');
+            }
+        }
+    });
+
+    instructionsButton.addEventListener('click', () => {
+        mainMenu.style.display = 'none';
+        instructionsScreen.style.display = 'block';
+    });
+
+    backButton.addEventListener('click', () => {
+        instructionsScreen.style.display = 'none';
+        mainMenu.style.display = 'block';
+    });
+    
+    // Initialize mobile controls
+    setupMobileControls();
+});
+
+// Helper function to add both touch and mouse events for binary controls (press/release)
+function addBinaryControlEvents(element, controlProperty) {
+    // Touch events
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = true;
+    });
+    element.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+    element.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+    
+    // Mouse events for desktop testing
+    element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = true;
+    });
+    element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls[controlProperty] = false;
+    });
+}
+
+// Helper function to add events for age switch controls (single trigger)
+function addAgeSwitchEvents(element, ageValue) {
+    // Touch events
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = ageValue;
+    });
+    element.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+    element.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+    
+    // Mouse events for desktop testing
+    element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = ageValue;
+    });
+    element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls.ageSwitch = null;
+    });
+}
+
+// Helper function to add events for turret toggle control
+function addTurretToggleEvents(element) {
+    // Touch events
+    element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = true;
+    });
+    element.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    element.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    
+    // Mouse events for desktop testing
+    element.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = true;
+    });
+    element.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+    element.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        mobileControls.turretToggle = false;
+    });
+}
+
+// Mobile Controls Setup
+function setupMobileControls() {
+    // Prevent duplicate initialization
+    if (mobileControlsInitialized) {
+        console.warn('Mobile controls already initialized');
+        return;
+    }
+    
+    // Movement Controls
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnJump = document.getElementById('btn-jump');
+    
+    // Age Switch Controls
+    const btnChild = document.getElementById('btn-child');
+    const btnAdult = document.getElementById('btn-adult');
+    const btnElder = document.getElementById('btn-elder');
+    
+    // Boss Controls
+    const btnTurret = document.getElementById('btn-turret');
+    const btnAimUp = document.getElementById('btn-aim-up');
+    const btnAimDown = document.getElementById('btn-aim-down');
+    const btnFire = document.getElementById('btn-fire');
+    const bossControls = document.getElementById('boss-controls');
+    
+    // Check if all required mobile control elements exist
+    const mobileElements = {
+        btnLeft, btnRight, btnJump,
+        btnChild, btnAdult, btnElder,
+        btnTurret, btnAimUp, btnAimDown, btnFire,
+        bossControls
+    };
+    
+    for (const [name, element] of Object.entries(mobileElements)) {
+        if (!element) {
+            console.warn(`Mobile control element missing: ${name}`);
+            return; // Exit if any element is missing
+        }
+    }
+    
+    // Setup movement controls
+    addBinaryControlEvents(btnLeft, 'left');
+    addBinaryControlEvents(btnRight, 'right');
+    addBinaryControlEvents(btnJump, 'jump');
+    
+    // Setup age switch controls
+    addAgeSwitchEvents(btnChild, 'child');
+    addAgeSwitchEvents(btnAdult, 'adult');
+    addAgeSwitchEvents(btnElder, 'elder');
+    
+    // Setup boss controls
+    addTurretToggleEvents(btnTurret);
+    addBinaryControlEvents(btnAimUp, 'aimUp');
+    addBinaryControlEvents(btnAimDown, 'aimDown');
+    addBinaryControlEvents(btnFire, 'fire');
+    
+    // Mark as initialized
+    mobileControlsInitialized = true;
+    
+    // Show/hide boss controls based on level
+    // This will be called from the game when entering/leaving boss level
+    window.showBossControls = function(show) {
+        if (show && window.innerWidth <= MOBILE_BREAKPOINT) {
+            bossControls.classList.add('active');
+        } else {
+            bossControls.classList.remove('active');
+        }
+    };
+}
+
+function startGame() {
+    // Prevent creating multiple game instances
+    if (game) {
+        console.warn('Game already initialized');
+        return;
+    }
+    game = new Phaser.Game(config);
 }
